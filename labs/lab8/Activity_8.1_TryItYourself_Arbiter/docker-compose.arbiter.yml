@@ -1,0 +1,22 @@
+# Activity 8.1 (Try it yourself) - arbiter node
+# Joins the network created by Activity_8.1_Replica_Set/docker-compose.yml.
+# Start:  docker compose -f docker-compose.arbiter.yml up -d
+#
+# An arbiter runs mongod but stores NO user data: it only votes in elections.
+# It needs a tiny dbPath for its own replica-set config, nothing more.
+
+name: rslab-arbiter
+
+services:
+  mongo-arb:
+    image: mongo:7.0
+    container_name: mongo-arb
+    hostname: mongo-arb
+    command: ["mongod", "--replSet", "rs0", "--bind_ip_all", "--port", "27020"]
+    ports: ["27020:27020"]
+    networks: [rsnet]
+
+networks:
+  rsnet:
+    name: kavach-net
+    external: true

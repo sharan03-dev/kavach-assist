@@ -1,0 +1,44 @@
+#!/usr/bin/env bash
+# lab12 - command menu (inside the container:  docker compose exec lab12 lab12 <cmd>)
+cd /app 2>/dev/null || cd "$(dirname "$0")/../.."
+PY="${PYTHON:-python3}"
+CERTS="${CERTS_DIR:-/certs}"
+pw() { $PY -c "import json,sys; print(json.load(open('$CERTS/secrets.json'))[sys.argv[1]])" "$1"; }
+case "${1:-help}" in
+  12.1)      shift; $PY labs/lab12/run_lab12.py --only 12.1 "$@" ;;
+  redaction) shift; $PY labs/lab12/run_lab12.py --only redaction "$@" ;;
+  12.2|tls)  shift; $PY labs/lab12/run_lab12.py --only 12.2 "$@" ;;
+  kavach)    shift; $PY labs/lab12/run_lab12.py --only kavach "$@" ;;
+  all)       shift; $PY labs/lab12/run_lab12.py --report "$@" ;;
+  report)    shift; DOCKER_URL="${1:-${DOCKER_URL:-}}" $PY labs/lab12/make_report.py ;;
+  certs)     $PY labs/lab12/setup/certs.py show --out "$CERTS" ;;
+  status)    $PY -c "import json; from backend.app import lab12; print(json.dumps(lab12.status(), indent=2, default=str))" ;;
+  password)  pw "${2:-analyst_app}" ;;
+  sync)      $PY -c "from backend.app import lab12; from backend.app.db import get_db; print(lab12.sync_secure(get_db()))" ;;
+  shell)     U="${2:-analyst_app}"
+             exec docker exec -it mongo-secure mongosh "mongodb://localhost:27040/?directConnection=true&tls=true&authSource=admin" \
+               --tlsCAFile /certs/ca.crt --tlsCertificateKeyFile /certs/client.pem -u "$U" -p "$(pw "$U")" ;;
+  plain)     echo "Trying a plain (non-TLS) connection - mongo-secure must refuse it:"
+             docker exec mongo-secure mongosh --host localhost --port 27040 --quiet --eval "db.runCommand({ping:1})" \
+               --serverSelectionTimeoutMS 3000 2>&1 | tail -2 ;;
+  chain)     $PY orchestrator/labctl.py status ;;
+  *) cat <<'TXT'
+Exercise 12 - Database security & the CIA triad (mongo-secure: --auth --tlsMode requireTLS, client certificates)
+
+  lab12 12.1            Lab 12.1  admin + least-privilege users and roles, verification matrix       (~5 s)
+  lab12 redaction       Activity  view employees_public without salary for users without the HR role (~2 s)
+  lab12 12.2            Lab 12.2  TLS tests (plain/untrusted/no cert/rogue/ok) + certificate chain   (~15 s)
+  lab12 kavach          Lab 12 on Lab 7: Kavach data + service accounts + validation + CSFLE + audit (~20 s)
+  lab12 all             everything above + results/Exercise-12_Report.pdf                          (~1 min)
+  lab12 report [URL]    rebuild the PDF (URL = your Docker Hub page)
+  lab12 shell [USER]    mongosh over TLS as USER (analyst_app, ingest_app, finance_app, staff_user, hr_user, kavach_admin, ...)
+  lab12 plain           show that a connection WITHOUT TLS is refused
+  lab12 password USER   print a user's generated password (for Compass)
+  lab12 certs           print the certificate chain
+  lab12 status          server, users, roles, TLS counters
+  lab12 sync            push the newest Lab 7 data to the secure server as ingest_app
+  lab12 chain           status of Labs 7-12
+Add --quick to all / kavach for a smaller copy of the Kavach data.
+TXT
+  ;;
+esac

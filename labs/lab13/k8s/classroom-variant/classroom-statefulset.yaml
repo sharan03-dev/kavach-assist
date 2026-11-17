@@ -1,0 +1,71 @@
+# Lab 13.2 - the solution text TAKEN LITERALLY, to test it: "an InitContainer ... that generates a keyfile on the first
+# pod (mongo-0) and copies it to a shared emptyDir volume". An emptyDir is created per pod and shared only by the
+# containers OF THAT POD, so the InitContainer of every pod generates its own key. Two pods are enough to show the result:
+#   rs.initiate() -> NodeNotFound (74): "... mongo-1.mongo-headless-svc:27017 failed with Authentication failed."
+# Run by `lab13 k8s` in its own namespace, which is deleted afterwards. The working version is ../mongo-statefulset.yaml.
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: lab13-classroom
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mongo-headless-svc
+  namespace: lab13-classroom
+spec:
+  clusterIP: None
+  publishNotReadyAddresses: true
+  selector:
+    app: mongo
+  ports:
+    - name: mongodb
+      port: 27017
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: mongo
+  namespace: lab13-classroom
+spec:
+  serviceName: mongo-headless-svc
+  replicas: 2
+  podManagementPolicy: Parallel
+  selector:
+    matchLabels:
+      app: mongo
+  template:
+    metadata:
+      labels:
+        app: mongo
+    spec:
+      terminationGracePeriodSeconds: 5
+      initContainers:
+        - name: keyfile-gen
+          image: mongo:7.0
+          imagePullPolicy: IfNotPresent
+          command: ["bash", "-c", "openssl rand -base64 756 > /etc/mongodb/keyfile && chown 999:999 /etc/mongodb/keyfile && chmod 400 /etc/mongodb/keyfile"]
+          volumeMounts:
+            - name: keyfile
+              mountPath: /etc/mongodb
+      containers:
+        - name: mongod
+          image: mongo:7.0
+          imagePullPolicy: IfNotPresent
+          args: ["mongod", "--replSet", "rs0", "--keyFile", "/etc/mongodb/keyfile", "--bind_ip", "0.0.0.0", "--wiredTigerCacheSizeGB", "0.25"]
+          readinessProbe:
+            tcpSocket:
+              port: 27017
+            periodSeconds: 5
+          resources:
+            requests:
+              memory: 200Mi
+            limits:
+              memory: 512Mi
+          volumeMounts:
+            - name: keyfile
+              mountPath: /etc/mongodb
+              readOnly: true
+      volumes:
+        - name: keyfile
+          emptyDir: {}

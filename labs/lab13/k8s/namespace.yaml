@@ -1,0 +1,8 @@
+# Lab 13.2 - everything of the Kubernetes lab lives in namespace lab13 (delete it to remove the lab: kubectl delete ns lab13)
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: lab13
+  labels:
+    course: 23CSE528
+    lab: "13"

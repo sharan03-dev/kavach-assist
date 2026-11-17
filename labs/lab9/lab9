@@ -1,0 +1,75 @@
+#!/usr/bin/env bash
+# lab9 - command menu for Exercise 9 (inside the container:  docker exec -it lab9-runner lab9 <cmd>)
+# Every lab command also saves its full console output to results/console_<lab>.txt;
+# the report embeds those files as the "Output" of each lab.
+set -uo pipefail
+ROOT="/lab9"
+[ -d "$ROOT/common" ] || ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+cd "$ROOT" || exit 1
+PY="${PYTHON:-python3}"
+export PYTHONUNBUFFERED=1
+RESULTS="${RESULTS_DIR:-$ROOT/results}"
+mkdir -p "$RESULTS"
+
+usage() {
+cat <<'TXT'
+Exercise 9 - Write concern latency & network partitions (MongoDB 7.0, rs0)
+
+  lab9 status            rs.status() summary
+  lab9 9.1               Lab 9.1  - w:1 vs w:majority vs w:all, 1,000 inserts each   (~1 min)
+  lab9 9.1-journal       Activity - same with j:true and j:false (6 configurations)  (~2 min)
+  lab9 9.2               Lab 9.2  - automated network partition, scenarios A + B     (~3 min)
+  lab9 9.2 --step        same, but pauses before every step (live demonstration)
+  lab9 observer          live replica-set observer (2nd terminal; Ctrl+C stops)
+  lab9 writer [opts]     w:1 / w:majority inserts, e.g. --phase manual --duration 30 --reads
+  lab9 verify            which recorded writes survived (after a partition)
+  lab9 timeline          merged event timeline of the last Lab 9.2 run
+  lab9 report [URL]      build results/Exercise-9_Report.pdf + .docx (URL = your Docker Hub page)
+  lab9 all [URL]         9.1 + 9.1-journal + 9.2 + report  (~6 min, everything in one go)
+  lab9 init              initialise rs0 (done automatically at start-up)
+
+Extra options are passed through, e.g.  lab9 9.1 --rounds 3
+Results are written to /lab9/results (mounted as ./results on the host).
+TXT
+}
+
+# run a lab, show its output live AND keep a copy for the report
+logged() {
+  local name="$1"; shift
+  local log="$RESULTS/console_${name}.txt"
+  {
+    echo "root@lab9-runner:/lab9# lab9 ${LAB9_SHOWN:-$name}"
+    "$@"
+  } 2>&1 | tee "$log"
+  local rc=${PIPESTATUS[0]}
+  echo "(console output saved to results/console_${name}.txt)"
+  return "$rc"
+}
+
+settle() {   # healthy replica set with the priority-2 member as PRIMARY before measuring
+  "$PY" setup/rsctl.py wait-healthy --timeout 90 --preferred-primary >/dev/null 2>&1 || true
+}
+
+cmd="${1:-help}"; shift || true
+LAB9_SHOWN="$cmd${*:+ $*}"
+case "$cmd" in
+  help|-h|--help) usage ;;
+  init)        exec "$PY" setup/rsctl.py init ;;
+  status)      exec "$PY" setup/rsctl.py status ;;
+  9.1)         settle; logged 9.1 "$PY" Activity_9.1_Write_Concern_Latency/write_concern_latency.py "$@" ;;
+  9.1-journal) settle; logged 9.1-journal "$PY" Activity_9.1_TryItYourself_Journaling/journal_latency.py "$@" ;;
+  9.2)         settle; logged 9.2 bash Activity_9.2_Network_Partition/simulate_partition.sh "$@" ;;
+  observer)    exec "$PY" Activity_9.2_Network_Partition/partition_observer.py "$@" ;;
+  writer)      exec "$PY" Activity_9.2_Network_Partition/partition_writer.py "$@" ;;
+  verify)      exec "$PY" Activity_9.2_Network_Partition/partition_writer.py --verify ;;
+  timeline)    exec "$PY" setup/rsctl.py timeline ;;
+  report)      exec "$PY" report/make_report.py ${1:+--docker-url "$1"} ;;
+  all)
+    LAB9_SHOWN="9.1";         settle; logged 9.1 "$PY" Activity_9.1_Write_Concern_Latency/write_concern_latency.py || exit 1
+    LAB9_SHOWN="9.1-journal"; settle; logged 9.1-journal "$PY" Activity_9.1_TryItYourself_Journaling/journal_latency.py || exit 1
+    LAB9_SHOWN="9.2";         settle; logged 9.2 bash Activity_9.2_Network_Partition/simulate_partition.sh || exit 1
+    "$PY" report/make_report.py ${1:+--docker-url "$1"}
+    ;;
+  shell)       exec bash ;;
+  *) echo "unknown command: $cmd"; echo; usage; exit 2 ;;
+esac

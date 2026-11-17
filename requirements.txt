@@ -1,0 +1,21 @@
+fastapi>=0.115
+uvicorn[standard]>=0.30
+pymongo[encryption]>=4.9,<5          # [encryption] = pymongocrypt for Lab 12 CSFLE
+cryptography>=42                     # Lab 12.2 certificate generation
+httpx>=0.27
+feedparser>=6.0.11
+beautifulsoup4>=4.12
+python-dotenv>=1.0
+rich>=13.7
+reportlab>=4.0
+python-docx>=1.1
+pillow>=10.0
+tabulate>=0.9                        # Lab 14.1 monitoring table
+requests>=2.31                       # Lab 14 webhook alerts (requests.post)
+schedule>=1.2                        # Lab 14.2 hourly backups + 30-s monitor
+PyJWT>=2.8                           # Lab 15 TaskTracker tokens (HS256)
+cassandra-driver>=3.29               # Labs 16 + 18 (wide-column)
+neo4j>=5.20                          # Labs 16 + 18 (graph)
+numpy>=1.26                          # Lab 17 (vectors, IVF k-means, recall)
+networkx>=3.2                        # Lab 18 activity (Louvain communities)
+fastembed>=0.4                       # Lab 17 embeddings (all-MiniLM-L6-v2 on ONNX Runtime, no PyTorch)

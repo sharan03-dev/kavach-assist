@@ -1,0 +1,29 @@
+#!/usr/bin/env bash
+# lab15 - command menu (inside the container:  docker compose exec lab15 lab15 <cmd>)
+cd /app 2>/dev/null || cd "$(dirname "$0")/../.."
+PY="${PYTHON:-python3}"
+case "${1:-help}" in
+  all)       shift; $PY labs/lab15/run_lab15.py --report "$@" ;;
+  crud|rate|rbac|applied|migration) p="$1"; shift; $PY labs/lab15/run_lab15.py --only "$p" "$@" ;;
+  seed)      $PY -c "from backend.app import lab15 as L; L.ensure_user(); L.seed_demo()" ;;
+  report)    shift; DOCKER_URL="${1:-${DOCKER_URL:-}}" $PY labs/lab15/make_report.py ;;
+  migrate)   shift; $PY labs/lab15/migrate_tenants.py --uri "$($PY -c 'from backend.app import lab14; print(lab14.uri("admin"))')" "$@" ;;
+  users)     $PY -c "from backend.app import lab15 as L; [print(f\"{u['tenant_id']:<8} {u['email']:<22} {u['role']:<7} password: {L.DEMO_PW}\") for u in L.demo_users()]" ;;
+  token)     shift; curl -s -X POST localhost:8000/tasktracker/auth/login -H 'Content-Type: application/json' \
+               -d "{\"tenant_id\":\"${1:-acme}\",\"email\":\"${2:-admin@acme.test}\",\"password\":\"Lab15-demo!\"}"; echo ;;
+  chain)     $PY orchestrator/labctl.py status ;;
+  *) cat <<'TXT'
+Exercise 15 - A MongoDB-backed product as a service (TaskTracker SaaS on the Lab 13 production set)
+
+  lab15 all            every task below + results/Exercise-15_Report.pdf                      (~2-3 min)
+  lab15 applied        least-privilege user, signup transaction, Lab 14 backup        (Lab 15 on 14..7)
+  lab15 crud           15.1 CRUD + tenant isolation + token attacks + validation + the classroom sample
+  lab15 rate           15.1 rate limiting (burst + 200 concurrent requests)
+  lab15 rbac           activity: admin vs member
+  lab15 migration      15.2 document-level -> collection-per-tenant, leakage check, benchmark, recommendation
+  lab15 users          demo tenants and users           lab15 token [tenant] [email]   get a JWT
+  lab15 migrate --quick   migrate_tenants.py directly    lab15 report [URL]    rebuild the PDF
+Website: http://localhost:8000/#/lab15     API docs: http://localhost:8000/tasktracker/docs
+TXT
+  ;;
+esac

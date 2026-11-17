@@ -1,0 +1,29 @@
+#!/usr/bin/env bash
+# lab11 - command menu (inside the container:  docker compose exec lab11 lab11 <cmd>)
+cd /app 2>/dev/null || cd "$(dirname "$0")/../.."
+PY="${PYTHON:-python3}"
+case "${1:-help}" in
+  11.1)    shift; $PY labs/lab11/run_lab11.py --only 11.1 "$@" ;;
+  11.2)    shift; $PY labs/lab11/run_lab11.py --only 11.2 "$@" ;;
+  reshard) shift; $PY labs/lab11/run_lab11.py --only reshard "$@" ;;
+  billing) shift; $PY labs/lab11/run_lab11.py --only billing "$@" ;;
+  all)     shift; $PY labs/lab11/run_lab11.py --report "$@" ;;
+  report)  shift; DOCKER_URL="${1:-${DOCKER_URL:-}}" $PY labs/lab11/make_report.py ;;
+  status)  $PY labs/lab11/setup/clusterctl.py status ;;
+  init)    $PY labs/lab11/setup/clusterctl.py init ;;
+  chain)   $PY orchestrator/labctl.py status ;;
+  *) cat <<'TXT'
+Exercise 11 - Sharding & horizontal scalability (mongos + config servers + shardA + shardB)
+
+  lab11 11.1          Lab 11.1  evaluate shard keys on 24,000 orders, decision matrix   (~30 s)
+  lab11 11.2          Lab 11.2  hotspot_data {ts:1} vs even_data {user_id:'hashed'}     (~10 s)
+  lab11 reshard       Activity  live reshardCollection while writes continue           (~50 s)
+  lab11 billing       Lab 11 on Lab 10: classifier billing moved to the shards + load test (~25 s)
+  lab11 all           everything above + results/Exercise-11_Report.pdf                (~2 min)
+  lab11 report [URL]  rebuild the PDF (URL = your Docker Hub page)
+  lab11 status        cluster topology, like sh.status()
+  lab11 chain         status of Labs 7-11
+Add --quick to 11.1 / reshard / all for smaller data sets.
+TXT
+  ;;
+esac

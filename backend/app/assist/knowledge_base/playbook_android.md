@@ -1,0 +1,9 @@
+# Android mitigation playbook
+## Android: apply security updates (patching)
+Android fixes arrive as a monthly security patch level and as Google Play system updates. Settings > Security & privacy > Updates > Security update, and Google Play system update. The patch level date (Settings > About phone > Android version) must be on or after the date in the bulletin that fixes the CVE. Chipset bugs (Qualcomm, MediaTek, Samsung Exynos) are fixed by the phone maker's firmware update. A phone that no longer receives patches stays vulnerable - replace it or limit it to low-risk use.
+## Android: malicious apps, banking trojans and spyware
+Install apps only from Google Play, keep Play Protect on (Play Store > profile > Play Protect), and switch off "Install unknown apps" for browsers and messengers. Be careful with apps that ask for Accessibility, Device admin or Notification access - banking trojans abuse them to read OTPs and tap for you. If infected: turn on Airplane mode, uninstall the app in Safe mode (hold power, long-press Power off), revoke Device admin first if uninstall is blocked, change banking and Google passwords from another device, call the bank, and factory-reset if anything remains.
+## Android: phishing by SMS and messaging apps
+Do not open links in unexpected SMS or WhatsApp messages about parcels, KYC, electricity bills or prizes, and never install an APK sent in chat. Verify with the official app or number. Report fraud in India at cybercrime.gov.in or call 1930 quickly so the bank can freeze the transfer.
+## Android: hardening baseline
+Automatic system and app updates on; screen lock with PIN or biometric; Find My Device on; encrypted backups; review app permissions every few months; use a password manager and an authenticator app instead of SMS codes where possible.

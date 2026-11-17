@@ -1,0 +1,23 @@
+# Lab 13.2 (3/3) - an application pod inside the cluster (Lab 13 applied to Lab 10): it connects with
+#   mongodb://...@mongo-0.mongo-headless-svc,mongo-1...,mongo-2.../?replicaSet=rs0
+# and runs multi-document transactions while the PRIMARY pod is deleted (labs/lab13/mongosh/k8s_transfers.js).
+apiVersion: v1
+kind: Pod
+metadata:
+  name: mongo-client
+  namespace: lab13
+  labels:
+    app: mongo-client
+spec:
+  terminationGracePeriodSeconds: 2
+  containers:
+    - name: client
+      image: mongo:7.0
+      imagePullPolicy: IfNotPresent
+      command: ["sleep", "infinity"]
+      resources:
+        requests:
+          cpu: 50m
+          memory: 64Mi
+        limits:
+          memory: 384Mi

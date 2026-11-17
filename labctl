@@ -1,0 +1,19 @@
+#!/usr/bin/env bash
+# Host helper:  ./labctl <7..15> [--full]   starts that lab AND every lab it needs (7 -> 8 -> ... -> 15)
+#               ./labctl status | down | logs
+set -eu
+cd "$(dirname "$0")"
+case "${1:-}" in
+  7|8|9|10|11|12|13|14|15)
+    N="$1"; MODE=quick; [ "${2:-}" = "--full" ] && MODE=full
+    echo "Starting: $(python3 -c "print(' -> '.join('Lab %d' % n for n in range(7, $N + 1)))")   (Lab $N in $MODE mode)"
+    export "LAB${N}_MODE=$MODE"
+    docker compose up -d --build "lab$N"
+    [ "$MODE" = full ] && docker compose exec -T "lab$N" labctl activate "$N" --mode full
+    docker compose exec -T lab7 labctl status
+    echo; echo "Website: http://localhost:8000/#/labs" ;;
+  status) docker compose exec -T lab7 labctl status ;;
+  logs)   docker compose logs -f --tail=50 lab7 lab8 lab9 lab10 shard-init lab11 mongo-secure lab12 lab13 lab14 lab15 ;;
+  down)   docker compose down ;;
+  *) echo "usage: ./labctl <7..15> [--full] | status | logs | down"; exit 2 ;;
+esac

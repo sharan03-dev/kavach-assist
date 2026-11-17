@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+# lab17 - command menu (inside the container:  docker compose exec lab17 lab17 <cmd>)
+cd /app 2>/dev/null || cd "$(dirname "$0")/../.."
+PY="${PYTHON:-python3}"
+case "${1:-help}" in
+  all)     shift; $PY labs/lab17/run_lab17.py --report "$@" ;;
+  quick)   shift; $PY labs/lab17/run_lab17.py --quick --report "$@" ;;
+  only)    shift; $PY labs/lab17/run_lab17.py --only "$@" ;;
+  report)  shift; DOCKER_URL="${1:-${DOCKER_URL:-}}" $PY -c "import importlib.util,json,os,sys; from pathlib import Path; r=Path(os.getenv('RESULTS_DIR','results')); s=importlib.util.spec_from_file_location('m','labs/lab17/make_report.py'); m=importlib.util.module_from_spec(s); s.loader.exec_module(m); print(m.build(json.loads((r/'lab17_results.json').read_text()), r, os.getenv('DOCKER_URL','')))" ;;
+  status)  $PY -c "import json; from backend.app import lab17 as L; print(json.dumps(L.status(), indent=2, default=str))" ;;
+  cqlsh)   docker exec -it cassandra cqlsh ;;
+  cypher)  docker exec -it neo4j cypher-shell -u neo4j -p "${NEO4J_PASSWORD:-Lab16-neo4j!}" ;;
+  mongosh) docker exec -it atlas-local mongosh ;;
+  chain)   $PY orchestrator/labctl.py status ;;
+  *) sed -n '2,12p' labs/lab17/run_lab17.py; echo "  lab17 all | quick | only <part> | report [URL] | status | cqlsh | cypher | mongosh | chain" ;;
+esac

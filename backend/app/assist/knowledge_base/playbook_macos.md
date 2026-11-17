@@ -1,0 +1,9 @@
+# macOS mitigation playbook
+## macOS: apply security updates (patching)
+Apple fixes vulnerabilities in macOS updates and Rapid Security Responses. System Settings > General > Software Update, or in Terminal `softwareupdate --list` then `sudo softwareupdate -ia --restart`. Turn on "Install Security Responses and system files". Safari / WebKit bugs are fixed by the same updates, so update even if you use another browser. Update apps from the App Store and Homebrew (`brew update && brew upgrade`). Apple only patches the three newest macOS versions - upgrade older Macs.
+## macOS: malware, infostealers and fake apps
+Most Mac malware arrives as a fake app, cracked software or a "copy this command into Terminal" trick. Keep Gatekeeper on (System Settings > Privacy & Security > allow apps from App Store and identified developers), never right-click-open an unsigned app you did not expect, and never paste commands from a website. If infected: disconnect from the network, check Login Items and `~/Library/LaunchAgents`, `/Library/LaunchDaemons` for unknown entries, remove unknown configuration profiles, change Apple ID and keychain passwords from another device, and revoke browser sessions because infostealers copy cookies and wallets.
+## macOS: zero-day and targeted attacks
+When Apple says a bug "may have been actively exploited", update the same day. If you may be personally targeted (journalist, activist, executive) enable Lockdown Mode: System Settings > Privacy & Security > Lockdown Mode. Restarting regularly removes non-persistent implants.
+## macOS: hardening baseline
+FileVault on; firewall on with stealth mode; automatic updates on; a standard user for daily work; screen lock with password; disable remote login and sharing services you do not use; review Full Disk Access and Accessibility permissions; Time Machine backup to an encrypted disk.

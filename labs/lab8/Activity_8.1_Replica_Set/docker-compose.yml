@@ -1,0 +1,65 @@
+# Exercise 8 - 3-node MongoDB replica set (rs0)
+#
+# Design notes (improvements over the sample file):
+#  * Each mongod listens on its OWN port (27017/27018/27019) and the same port
+#    is published on the host. The replica-set member names
+#    (mongo1:27017, mongo2:27018, mongo3:27019) then resolve identically inside
+#    the Docker network AND from the host (after adding them to the hosts file).
+#  * Neutral names (mongo1..3) instead of "primary/secondary": after a
+#    failover the "primary" container would no longer be the primary.
+#  * Every data-bearing node gets its own persistent volume.
+#  * Healthchecks so `docker compose ps` shows real health.
+
+name: rslab
+
+services:
+  mongo1:
+    image: mongo:7.0
+    container_name: mongo1
+    hostname: mongo1
+    command: ["mongod", "--replSet", "rs0", "--bind_ip_all", "--port", "27017"]
+    ports: ["27017:27017"]
+    volumes: ["mongo1-data:/data/db"]
+    networks: [rsnet]
+    healthcheck:
+      test: ["CMD", "mongosh", "--port", "27017", "--quiet", "--eval", "db.adminCommand('ping').ok"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  mongo2:
+    image: mongo:7.0
+    container_name: mongo2
+    hostname: mongo2
+    command: ["mongod", "--replSet", "rs0", "--bind_ip_all", "--port", "27018"]
+    ports: ["27018:27018"]
+    volumes: ["mongo2-data:/data/db"]
+    networks: [rsnet]
+    healthcheck:
+      test: ["CMD", "mongosh", "--port", "27018", "--quiet", "--eval", "db.adminCommand('ping').ok"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  mongo3:
+    image: mongo:7.0
+    container_name: mongo3
+    hostname: mongo3
+    command: ["mongod", "--replSet", "rs0", "--bind_ip_all", "--port", "27019"]
+    ports: ["27019:27019"]
+    volumes: ["mongo3-data:/data/db"]
+    networks: [rsnet]
+    healthcheck:
+      test: ["CMD", "mongosh", "--port", "27019", "--quiet", "--eval", "db.adminCommand('ping').ok"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+networks:
+  rsnet:
+    name: rslab-net        # fixed name so the arbiter compose file can join it
+
+volumes:
+  mongo1-data:
+  mongo2-data:
+  mongo3-data:

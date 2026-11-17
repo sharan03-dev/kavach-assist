@@ -1,0 +1,25 @@
+#!/usr/bin/env bash
+# lab10 - command menu (inside the container:  docker compose exec lab10 lab10 <cmd>)
+cd /app 2>/dev/null || cd "$(dirname "$0")/../.."
+PY="${PYTHON:-python3}"
+case "${1:-help}" in
+  10.1)    shift; $PY labs/lab10/run_lab10.py --only 10.1 "$@" ;;
+  10.2)    shift; $PY labs/lab10/run_lab10.py --only 10.2 "$@" ;;
+  bench)   shift; $PY labs/lab10/run_lab10.py --only bench "$@" ;;
+  billing) shift; $PY labs/lab10/run_lab10.py --only billing "$@" ;;
+  all)     shift; $PY labs/lab10/run_lab10.py --report "$@" ;;
+  report)  shift; DOCKER_URL="${1:-${DOCKER_URL:-}}" $PY labs/lab10/make_report.py ;;
+  chain)   $PY orchestrator/labctl.py status ;;
+  *) cat <<'TXT'
+Exercise 10 - Transactions (MongoDB replica set rs0)
+
+  lab10 10.1          Lab 10.1  bank transfer, rollback, crash, retry with back-off   (~10 s)
+  lab10 10.2          Lab 10.2  8 concurrent reservations, with/without retry, atomicity (~10 s)
+  lab10 bench         throughput for 1/4/8/16 threads, transaction vs findAndModify    (~40 s)
+  lab10 billing       Lab 10 on Lab 7: ACID checks of the classifier paywall (3 free, then Rs 100/month)
+  lab10 all           everything above + results/Exercise-10_Report.pdf                (~1-2 min)
+  lab10 report [URL]  rebuild the PDF (URL = your Docker Hub page)
+  lab10 chain         status of Labs 7-10
+TXT
+  ;;
+esac

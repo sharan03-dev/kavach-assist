@@ -1,0 +1,97 @@
+# Lab 13.2 (2/3) - StatefulSet: 3 mongod pods = replica set rs0, keyFile authentication, one PersistentVolumeClaim each.
+#
+# Keyfile: generated ONCE (openssl rand -base64 756) and stored in Secret mongo-keyfile (created by `lab13 k8s`, or:
+#   openssl rand -base64 756 > keyfile && kubectl -n lab13 create secret generic mongo-keyfile --from-file=keyfile ).
+# InitContainer keyfile-init copies it into an in-memory emptyDir with owner 999 (mongodb) and mode 400, because a
+# Secret volume file is owned by root and mongod (uid 999) refuses a keyfile it cannot read or that is group-readable.
+# Why not "generate the keyfile in the InitContainer" (the solution text)? An emptyDir belongs to ONE pod: every pod
+# would generate a DIFFERENT key and the members could not authenticate to each other - measured in
+# classroom-variant/ (rs.initiate fails with "Authentication failed").
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: mongo
+  namespace: lab13
+  labels:
+    app: mongo
+spec:
+  serviceName: mongo-headless-svc          # pods get mongo-N.mongo-headless-svc
+  replicas: 3
+  podManagementPolicy: OrderedReady        # mongo-0, then mongo-1, then mongo-2
+  selector:
+    matchLabels:
+      app: mongo
+  template:
+    metadata:
+      labels:
+        app: mongo
+    spec:
+      terminationGracePeriodSeconds: 30    # mongod shuts down cleanly (a primary steps down first)
+      initContainers:
+        - name: keyfile-init
+          image: mongo:7.0
+          imagePullPolicy: IfNotPresent
+          command:
+            - bash
+            - -c
+            - >-
+              cp /keyfile-secret/keyfile /etc/mongodb/keyfile &&
+              chown 999:999 /etc/mongodb/keyfile &&
+              chmod 400 /etc/mongodb/keyfile &&
+              echo "keyfile ready on $(hostname): $(stat -c '%a %U:%G %s bytes' /etc/mongodb/keyfile)"
+          volumeMounts:
+            - name: keyfile-secret
+              mountPath: /keyfile-secret
+              readOnly: true
+            - name: keyfile
+              mountPath: /etc/mongodb
+      containers:
+        - name: mongod
+          image: mongo:7.0
+          imagePullPolicy: IfNotPresent
+          args: ["mongod", "--replSet", "rs0", "--keyFile", "/etc/mongodb/keyfile", "--bind_ip", "0.0.0.0",
+                 "--port", "27017", "--wiredTigerCacheSizeGB", "0.25"]
+          ports:
+            - name: mongodb
+              containerPort: 27017
+          readinessProbe:                  # the solution's probe: is the pod reachable on port 27017?
+            tcpSocket:
+              port: 27017
+            initialDelaySeconds: 5
+            periodSeconds: 5
+            failureThreshold: 6
+          livenessProbe:
+            tcpSocket:
+              port: 27017
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            failureThreshold: 6
+          resources:
+            requests:
+              cpu: 100m
+              memory: 300Mi
+            limits:
+              memory: 768Mi
+          volumeMounts:
+            - name: data
+              mountPath: /data/db
+            - name: keyfile
+              mountPath: /etc/mongodb
+              readOnly: true
+      volumes:
+        - name: keyfile-secret
+          secret:
+            secretName: mongo-keyfile
+            defaultMode: 0400
+        - name: keyfile
+          emptyDir:
+            medium: Memory                 # the key never touches the node's disk
+            sizeLimit: 1Mi
+  volumeClaimTemplates:                    # one PVC per pod: data-mongo-0, data-mongo-1, data-mongo-2
+    - metadata:
+        name: data
+      spec:
+        accessModes: ["ReadWriteOnce"]
+        resources:
+          requests:
+            storage: 1Gi

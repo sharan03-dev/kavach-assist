@@ -1,0 +1,13 @@
+.venv/
+__pycache__/
+*.pyc
+.env
+labs/*/output/
+.DS_Store
+
+# final assessment
+results/*
+!results/.gitkeep
+scan_target/*
+!scan_target/.gitkeep
+*.tgz

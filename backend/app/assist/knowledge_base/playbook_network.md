@@ -1,0 +1,7 @@
+# Network devices mitigation playbook
+## Network devices: firewalls, VPN gateways and routers under attack
+Edge devices (Fortinet, Ivanti, Palo Alto, Cisco, Citrix, SonicWall, routers, NAS) are the most exploited targets because they face the internet. 1) Install the fixed firmware from the vendor advisory immediately. 2) If you cannot patch now, apply the vendor workaround and remove the management interface and web portal from the internet (allow only an admin network or a jump host). 3) After patching, assume compromise if the bug was exploited in the wild: run the vendor's integrity checker, look for new admin accounts and unknown config changes, reset all device and VPN user passwords, rotate certificates and API keys, and review VPN logs for unusual logins. 4) A factory reset plus clean config may be needed because some implants survive upgrades.
+## Network devices: hardening baseline
+Never expose admin panels (HTTP, SSH, Telnet, SNMP) to the internet; change default passwords; enable MFA on VPN; disable unused services such as UPnP and WPS; send logs to a central server; keep firmware supported - replace end-of-life devices because they will never be patched; segment the network so one device cannot reach everything.
+## Network devices: IoT, cameras and home routers
+Update firmware, change the default password, disable remote management and UPnP, put IoT devices on a separate guest network, and reboot to clear memory-only botnet malware (then patch, or it returns).

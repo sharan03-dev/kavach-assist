@@ -1,0 +1,132 @@
+{
+ "note": "Synthetic demo records written for this project. Used only when the internet is unavailable. IPs are from documentation ranges (RFC 5737) and are not real hosts.",
+ "reports": [
+  {
+   "url": "https://example.org/sample/1",
+   "title": "Ransomware gang encrypts servers at regional hospital network, demands payment",
+   "summary": "A ransomware group using double extortion encrypted file servers at a regional hospital network and threatened to publish stolen patient records on its leak site. Initial access came through an unpatched VPN appliance."
+  },
+  {
+   "url": "https://example.org/sample/2",
+   "title": "Critical VPN flaw CVE-2026-10001 exploited in the wild before patch",
+   "summary": "Attackers are actively exploiting a critical remote code execution vulnerability in a popular VPN gateway. The zero-day allows unauthenticated attackers to run commands; administrators should patch now. Scanning traffic came from 203.0.113.45 and 198.51.100.23."
+  },
+  {
+   "url": "https://example.org/sample/3",
+   "title": "State-sponsored APT group targets telecom providers with custom backdoor",
+   "summary": "A nation-state espionage group deployed a new backdoor on routers of telecom providers in Asia. The malware used 192.0.2.77 for command-and-control traffic and hid inside legitimate firmware update processes."
+  },
+  {
+   "url": "https://example.org/sample/4",
+   "title": "Phishing campaign abuses fake Microsoft 365 login pages to steal credentials",
+   "summary": "A large phishing campaign sends invoice lures that lead to spoofed Microsoft 365 login pages. The adversary-in-the-middle kit captures session cookies and bypasses MFA. Landing domains included login-verify[.]example."
+  },
+  {
+   "url": "https://example.org/sample/5",
+   "title": "Malicious npm packages steal developer tokens in supply chain attack",
+   "summary": "Researchers found malicious packages on npm that typosquat popular libraries. Once installed, the packages exfiltrate environment variables, cloud access keys and GitHub tokens to an attacker server."
+  },
+  {
+   "url": "https://example.org/sample/6",
+   "title": "Botnet launches 3.1 Tbps DDoS attack against gaming platform",
+   "summary": "A Mirai-based botnet of compromised IoT devices launched a 3.1 Tbps distributed denial-of-service attack. The amplification traffic peaked for 90 seconds before mitigation."
+  },
+  {
+   "url": "https://example.org/sample/7",
+   "title": "Data breach exposes 4 million customer records at online retailer",
+   "summary": "An online retailer disclosed a data breach after an exposed database leaked names, addresses and order history of 4 million customers. Stolen data was offered for sale on a criminal forum."
+  },
+  {
+   "url": "https://example.org/sample/8",
+   "title": "Infostealer malware spreads through cracked software downloads",
+   "summary": "A new infostealer distributed through cracked software sites steals browser passwords, crypto wallets and session tokens. Stolen logs are sold in bulk to initial access brokers."
+  },
+  {
+   "url": "https://example.org/sample/9",
+   "title": "Android banking trojan found in Google Play utility apps",
+   "summary": "Several utility apps on Google Play carried a banking trojan that abuses accessibility services to steal one-time passwords from mobile banking apps."
+  },
+  {
+   "url": "https://example.org/sample/10",
+   "title": "CISA adds three actively exploited flaws to KEV catalog",
+   "summary": "CISA added three vulnerabilities to its Known Exploited Vulnerabilities catalog, including an authentication bypass in a file-transfer product. Federal agencies must patch within three weeks."
+  },
+  {
+   "url": "https://example.org/sample/11",
+   "title": "Europol-led operation takes down ransomware infrastructure, two arrested",
+   "summary": "Law enforcement agencies seized servers and dismantled infrastructure used by a ransomware affiliate program. Two suspects were arrested and decryption keys were recovered for victims."
+  },
+  {
+   "url": "https://example.org/sample/12",
+   "title": "Deepfake voice scam tricks finance employee into wire transfer",
+   "summary": "Criminals used an AI-generated deepfake voice of a company executive to convince a finance employee to approve an urgent wire transfer. The social engineering attack combined a spoofed email with a phone call."
+  },
+  {
+   "url": "https://example.org/sample/13",
+   "title": "Cloud misconfiguration leaves S3 buckets with backups publicly readable",
+   "summary": "A misconfigured cloud storage policy left database backups in S3 buckets readable by anyone. The files contained API keys and internal credentials that could enable further compromise."
+  },
+  {
+   "url": "https://example.org/sample/14",
+   "title": "Researchers publish proof-of-concept for web server privilege escalation bug",
+   "summary": "A proof-of-concept exploit for a privilege escalation bug in a widely used web server was published. No exploitation in the wild has been seen yet, but a patch is available."
+  },
+  {
+   "url": "https://example.org/sample/15",
+   "title": "SSH brute-force wave from compromised hosts hits Linux servers",
+   "summary": "Honeypots recorded a surge in SSH brute-force attempts from compromised hosts, with 198.51.100.200 among the most active sources. Successful logins dropped a cryptominer."
+  },
+  {
+   "url": "https://example.org/sample/16",
+   "title": "Prompt injection flaw lets attackers hijack AI assistant integrations",
+   "summary": "A prompt injection vulnerability in an AI assistant plugin let attackers exfiltrate data by planting instructions in shared documents. The vendor released a fix after disclosure."
+  },
+  {
+   "url": "https://example.org/sample/17",
+   "title": "New guidance on securing remote access published by national cyber agency",
+   "summary": "A national cyber security agency published guidance and best practices for securing remote access, including MFA, patching and network segmentation."
+  },
+  {
+   "url": "https://example.org/sample/18",
+   "title": "Wiper malware disguised as ransomware hits energy sector firms",
+   "summary": "Destructive wiper malware posing as ransomware destroyed data at energy companies. Analysts attribute the sabotage to a state-backed threat actor."
+  },
+  {
+   "url": "https://example.org/sample/19",
+   "title": "Business email compromise ring steals millions from suppliers",
+   "summary": "A BEC ring impersonated suppliers through lookalike domains and redirected invoice payments, stealing more than 12 million dollars from victims."
+  },
+  {
+   "url": "https://example.org/sample/20",
+   "title": "Loader malware delivered through malicious search ads",
+   "summary": "Malicious search ads for popular software lead to fake download sites that install a loader, which then drops remote access trojans and infostealers."
+  }
+ ],
+ "indicators": [
+  {
+   "ip": "203.0.113.45",
+   "confidence": 85,
+   "note": "demo scanner"
+  },
+  {
+   "ip": "198.51.100.23",
+   "confidence": 75,
+   "note": "demo exploit source"
+  },
+  {
+   "ip": "192.0.2.77",
+   "confidence": 90,
+   "note": "demo C2 server"
+  },
+  {
+   "ip": "198.51.100.200",
+   "confidence": 65,
+   "note": "demo brute-force source"
+  },
+  {
+   "ip": "203.0.113.9",
+   "confidence": 40,
+   "note": "demo low-confidence listing"
+  }
+ ]
+}

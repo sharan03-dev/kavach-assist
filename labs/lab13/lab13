@@ -1,0 +1,52 @@
+#!/usr/bin/env bash
+# lab13 - command menu (inside the container:  docker compose exec lab13 lab13 <cmd>)
+cd /app 2>/dev/null || cd "$(dirname "$0")/../.."
+PY="${PYTHON:-python3}"
+PROD="${PROD_DIR:-/prod}"
+pw() { $PY -c "import json,sys; print(json.load(open('$PROD/secrets.json'))[sys.argv[1]])" "$1"; }
+L13() { $PY -c "import json,sys; from backend.app import lab13 as L; $1" "${@:2}"; }
+case "${1:-help}" in
+  13.1)      shift; $PY labs/lab13/run_lab13.py --only 13.1 "$@" ;;
+  activity|monitoring) shift; $PY labs/lab13/run_lab13.py --only activity "$@" ;;
+  billing)   shift; $PY labs/lab13/run_lab13.py --only billing "$@" ;;
+  13.2|k8s)  shift; $PY labs/lab13/run_lab13.py --only 13.2 "$@" ;;
+  cloud)     shift; $PY labs/lab13/run_lab13.py --only cloud "$@" ;;
+  all)       shift; $PY labs/lab13/run_lab13.py --report "$@" ;;
+  report)    shift; DOCKER_URL="${1:-${DOCKER_URL:-}}" $PY labs/lab13/make_report.py ;;
+  stepdown)  L13 "r = L.failover('stepdown'); r.pop('timeline'); print(json.dumps(r, indent=1, default=str))" ;;
+  crash)     L13 "r = L.failover('crash'); r.pop('timeline'); print(json.dumps(r, indent=1, default=str))" ;;
+  status)    L13 "print(json.dumps(L.rs_summary(), indent=2, default=str))" ;;
+  metrics)   L13 "print(json.dumps(L.scrape_exporter(), indent=2))" ;;
+  pods)      L13 "r = L.kubectl('get', 'pods,pvc,svc', '-n', 'lab13', '-o', 'wide'); print(r.out + r.err)" ;;
+  kubectl)   shift; L13 "r = L.kubectl(*sys.argv[1:]); print(r.out + r.err, end='')" "$@" ;;
+  delete-pod) L13 "r = L.k8s_resiliency(sys.argv[1]); print(json.dumps(r, indent=1, default=str))" "${2:-mongo-2}" ;;
+  password)  pw "${2:-admin}" ;;
+  shell)     U="${2:-admin}"
+             exec docker exec -it prod-mongo-1 mongosh \
+               "mongodb://prod-mongo-1:27017,prod-mongo-2:27017,prod-mongo-3:27017/?replicaSet=rs0&authSource=admin" \
+               -u "$U" -p "$(pw "$U")" ;;
+  k8s-shell) P="$($PY -c "from backend.app import lab13 as L; print(L.k8s_admin_password())")"
+             K="kubectl"; command -v kubectl >/dev/null && [ -s "$HOME/.kube/config" ] || K="docker exec -it ${K3S_CONTAINER:-k3s} kubectl"
+             exec $K -n lab13 exec -it "${2:-mongo-0}" -c mongod -- mongosh -u admin -p "$P" --authenticationDatabase admin ;;
+  chain)     $PY orchestrator/labctl.py status ;;
+  *) cat <<'TXT'
+Exercise 13 - Deploying MongoDB with containers and the cloud (prod rs0 = prod-mongo-1/2/3, Kubernetes = k3s)
+
+  lab13 13.1            Lab 13.1  initiate + verify the keyFile replica set, rogue member, stepDown + crash failover (~2 min)
+  lab13 activity        Activity  exporter sidecar + Prometheus + alert rules, sidecar restart test             (~40 s)
+  lab13 billing         13 on 10  Lab 10 billing on prod rs0: copy, ACID checks, journeys through failovers    (~1 min)
+  lab13 13.2            Lab 13.2  StatefulSet on k3s, delete mongo-2, delete the PRIMARY during transactions   (~5-8 min)
+  lab13 cloud           Cloud     reference main.tf review + terraform validate (+ Atlas test if ATLAS_URI is set)
+  lab13 all             everything above + results/Exercise-13_Report.pdf
+  lab13 report [URL]    rebuild the PDF (URL = your Docker Hub page)
+  lab13 stepdown|crash  one failover test with PyMongo reading and writing (prints the numbers)
+  lab13 status          rs.status() of prod rs0          lab13 metrics      what the exporter sidecar returns
+  lab13 pods            kubectl get pods,pvc,svc -n lab13 lab13 kubectl ...  any kubectl command
+  lab13 delete-pod [P]  kubectl delete pod P (default mongo-2) and time its return
+  lab13 shell [USER]    mongosh to prod rs0 as USER (admin, lab_app, billing_app, exporter)
+  lab13 k8s-shell [POD] mongosh inside a Kubernetes pod as admin
+  lab13 password USER   print a generated password      lab13 chain   status of Labs 7-13
+Add --quick to all / 13.1 / billing / 13.2 for the shorter version (no crash tests).
+TXT
+  ;;
+esac

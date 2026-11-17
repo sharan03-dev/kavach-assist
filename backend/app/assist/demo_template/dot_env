@@ -1,0 +1,2 @@
+SHOP_API_KEY=demo-not-a-real-key-123456
+MONGO_URI=mongodb://shop:shop@localhost:27017/shop

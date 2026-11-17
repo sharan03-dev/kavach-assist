@@ -1,0 +1,10 @@
+# web shop backend
+flask==2.0.1
+requests==2.25.1
+jinja2==3.0.1
+pyyaml==5.3.1
+pillow==9.0.0
+urllib3==1.26.5
+gunicorn==20.1.0
+pymongo==4.6.1
+python-dotenv==1.0.1

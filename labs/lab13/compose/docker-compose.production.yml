@@ -1,0 +1,84 @@
+# Lab 13.1 - production-ready Docker Compose: 3-node MongoDB replica set rs0 with keyFile authentication (STANDALONE).
+#
+#   docker compose -f docker-compose.production.yml up -d       # keyfile -> 3 healthy members
+#   ./init-replica.sh                                         # rs.initiate() + admin (localhost exception) + rs.status()
+#   ./failover_test.sh                                        # PyMongo reads continuously while rs.stepDown() runs
+#
+# The same services run inside the full project (../../../docker-compose.yml) where Lab 13 automates every step.
+# Differences from the reference file (github.com/sujeetjagtap/.../chapter-13/docker-compose-production.yml):
+#   * keyfile made in a named volume by the `keyfile` service (openssl rand -base64 756, chown 999:999, chmod 400):
+#     a host file ./keyfile with chmod 400 belongs to the host user, and mongod (uid 999) cannot read it on Linux
+#   * health check = ping WITHOUT a password (ping needs no authentication); the reference logs in as admin /
+#     AdminPass123! - a user that does not exist (container never healthy) and a password visible in `docker inspect`
+#   * a health check on every member, restart: unless-stopped, init (tini) so a killed mongod restarts the container,
+#     memory/CPU limits, log rotation, stop_grace_period for a clean step-down, no obsolete `version:` key
+#   * --auth removed: --keyFile already turns authorization on
+name: lab13-prod
+
+x-mongod: &mongod
+  image: mongo:7.0
+  init: true                               # tini is PID 1: a crashed mongod exits the container -> restart policy
+  restart: unless-stopped
+  stop_grace_period: 30s
+  networks: [prodnet]
+  depends_on:
+    keyfile:
+      condition: service_completed_successfully
+  ulimits:
+    nofile: {soft: 64000, hard: 64000}
+  logging:
+    driver: json-file
+    options: {max-size: "10m", max-file: "3"}
+  deploy:
+    resources:
+      limits: {cpus: "1.0", memory: 768M}
+  healthcheck:
+    test: ["CMD", "mongosh", "--quiet", "--eval", "db.adminCommand('ping').ok"]
+    interval: 10s
+    timeout: 5s
+    retries: 6
+    start_period: 20s
+
+services:
+  keyfile:                                 # step 2: generate the keyfile once
+    image: mongo:7.0
+    restart: "no"
+    command: ["bash", "-c", "test -s /keys/keyfile || openssl rand -base64 756 > /keys/keyfile; chown 999:999 /keys/keyfile && chmod 400 /keys/keyfile && ls -l /keys/keyfile"]
+    volumes: ["keyfile:/keys"]
+
+  prod-mongo-1:
+    <<: *mongod
+    container_name: prod-mongo-1
+    hostname: prod-mongo-1
+    command: ["mongod", "--replSet", "rs0", "--bind_ip_all", "--port", "27017", "--keyFile", "/etc/mongodb/keyfile",
+              "--wiredTigerCacheSizeGB", "0.25"]
+    ports: ["27051:27017"]
+    volumes: ["prod-data-1:/data/db", "keyfile:/etc/mongodb:ro"]
+
+  prod-mongo-2:
+    <<: *mongod
+    container_name: prod-mongo-2
+    hostname: prod-mongo-2
+    command: ["mongod", "--replSet", "rs0", "--bind_ip_all", "--port", "27017", "--keyFile", "/etc/mongodb/keyfile",
+              "--wiredTigerCacheSizeGB", "0.25"]
+    ports: ["27052:27017"]
+    volumes: ["prod-data-2:/data/db", "keyfile:/etc/mongodb:ro"]
+
+  prod-mongo-3:
+    <<: *mongod
+    container_name: prod-mongo-3
+    hostname: prod-mongo-3
+    command: ["mongod", "--replSet", "rs0", "--bind_ip_all", "--port", "27017", "--keyFile", "/etc/mongodb/keyfile",
+              "--wiredTigerCacheSizeGB", "0.25"]
+    ports: ["27053:27017"]
+    volumes: ["prod-data-3:/data/db", "keyfile:/etc/mongodb:ro"]
+
+networks:
+  prodnet:
+    name: lab13-prodnet
+
+volumes:
+  keyfile:
+  prod-data-1:
+  prod-data-2:
+  prod-data-3:

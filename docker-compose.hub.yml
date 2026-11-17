@@ -1,0 +1,602 @@
+# Kavach CTI + Labs 7-18: a 3-member replica set (Labs 7-10), a sharded cluster (Lab 11), a hardened server (Lab 12),
+# a production-style keyFile replica set + Prometheus + Kubernetes (k3s) for Lab 13, monitoring + backups for Lab 14.
+#
+# THE MENTOR'S RULE, as compose dependencies:
+#     lab18 needs lab17 needs lab16 needs lab15 needs lab14 needs lab13 needs lab12 needs lab11 needs lab10 needs lab9 needs lab8 needs lab7
+#     (lab7 needs replica set rs0, lab11 also needs the shards, lab12 also needs mongo-secure,
+#      lab13 also needs prod-mongo-1/2/3, the exporter sidecar, Prometheus and k3s)
+# so   docker compose up -d lab18   starts everything in order: 7 -> 8 -> ... -> 17 -> 18.
+#      docker compose up -d lab16   starts only 7 -> ... -> 16 (Labs 17 and 18 stay off).
+#
+# Lab 11 sharded cluster (the "Scaling beyond a single server" picture):
+#     application -> mongos (localhost:27030) -> config server replica set cfgrs (cfg1)
+#                                             -> shardA = shard-a1 (primary) + shard-a2 (secondary)
+#                                             -> shardB = shard-b1 (primary) + shard-b2 (secondary)
+# Website: http://localhost:8000     Compass: rs0 mongodb://localhost:27017/?directConnection=true
+#                                             Lab 11 mongodb://localhost:27030 (mongos)
+#                                             Lab 12 localhost:27040 (TLS + client certificate + password:
+#                                                    docker compose exec lab12 lab12 shell analyst_app)
+#
+# Lab 12 hardened server:  mongo-secure = replica set rs12, --keyFile (auth), --tlsMode requireTLS, client certificates,
+#                          SCRAM-SHA-256 only. Certificates + passwords: lab12-certs -> volume lab12-certs (/certs).
+# Lab 13:  prod-mongo-1/2/3 = replica set rs0 with --keyFile (host ports 27051-27053), keyfile from lab13-keyfile,
+#          prod-mongo-1-exporter = Prometheus exporter SIDECAR (shares prod-mongo-1's network namespace, :9216),
+#          prometheus (:9090), k3s = a one-node Kubernetes in a container (:6443) for the Lab 13.2 StatefulSet.
+# Lab 14:  lab14 = ops daemon (monitor prod rs0 every 30 s -> results/metrics.log + webhook alerts; hourly mongodump of the
+#          billing ledger and the Kavach platform -> volume lab14-backups, 7-day retention) + the Lab 14 runs.
+# Lab 15:  lab15 = the TaskTracker SaaS (served by lab7 at /tasktracker) on prod rs0 + the Lab 15 runs.
+# Lab 16:  cassandra (:9042) + neo4j (:7474 browser, :7687 bolt) next to MongoDB; lab16 = the Lab 16 runs.
+# Lab 17:  atlas-local (:27060) = MongoDB 8 + mongot ($vectorSearch); lab17 = RAG, HNSW vs IVF, Ask Kavach.
+# Lab 18:  lab18 = the capstone: 100,000 threats in MongoDB + Cassandra + Neo4j, benchmarks, report.
+# DEMO FILE for the image published on Docker Hub (no build, pulls the image).
+
+name: kavach
+
+x-labimage: &labimage
+  image: ${LAB_IMAGE:-__LAB_IMAGE__}
+
+x-lab: &lab
+  <<: *labimage
+  init: true
+  networks: [rsnet]
+  volumes:
+    - ./results:/app/results
+    - /var/run/docker.sock:/var/run/docker.sock       # lets Lab 8/9 stop, disconnect and reconnect members
+    - lab12-certs:/certs                              # Lab 12: CA, client certificate, passwords (made by lab12-certs)
+    - lab13-prod:/prod:ro                             # Lab 13: passwords of the production replica set (lab13-keyfile)
+    - lab13-kube:/kube:ro                             # Lab 13: kubeconfig written by k3s
+    - lab14-backups:/backups                          # Lab 14: mongodump folders (hourly, 7-day retention)
+  environment: &env
+    MONGO_URI: "mongodb://mongo1:27017,mongo2:27018,mongo3:27019/?replicaSet=rs0"
+    MONGO_DB: cti_platform
+    RS_NETWORK: kavach-net
+    RESULTS_DIR: /app/results
+    DOCKER_URL: ${DOCKER_URL:-}
+    AUTO_UPDATE_INTERVAL: ${AUTO_UPDATE_INTERVAL:-300}
+    SHARD_URI: "mongodb://mongos:27030"
+    CFG_RS: "cfgrs/cfg1:27101"
+    SHARD_RS: "shardA/shard-a1:27111,shard-a2:27112;shardB/shard-b1:27121,shard-b2:27122"
+    SECURE_HOST: "mongo-secure:27040"
+    CERTS_DIR: /certs
+    PROD_HOSTS: "prod-mongo-1:27017,prod-mongo-2:27017,prod-mongo-3:27017"
+    PROD_RS: rs0
+    PROD_DIR: /prod
+    KUBE_DIR: /kube
+    PROMETHEUS_URL: "http://prometheus:9090"
+    EXPORTER_URL: "http://prod-mongo-1:9216/metrics"
+    LAB13_K8S: ${LAB13_K8S:-k3s}
+    ATLAS_URI: ${ATLAS_URI:-}
+    LAB14_BACKUP_DIR: /backups
+    LAB14_INBOX_URL: "http://lab7:8000"            # the website's built-in Slack/Discord-style receiver
+    LAB14_WEBHOOK_URL: ${LAB14_WEBHOOK_URL:-}       # optional: a real Slack / Discord webhook (comma-separated)
+    LAB14_BACKUP_EVERY_MIN: ${LAB14_BACKUP_EVERY_MIN:-60}
+    CASSANDRA_HOSTS: cassandra                      # Labs 16 + 18
+    NEO4J_URI: "bolt://neo4j:7687"
+    NEO4J_PASSWORD: "Lab16-neo4j!"
+    VECTOR_URI: "mongodb://atlas-local:27017/?directConnection=true"   # Lab 17: MongoDB Atlas Local (mongod + mongot)
+    EMBEDDER: ${EMBEDDER:-auto}                     # auto | voyage | fastembed | hashing
+    VOYAGE_API_KEY: ${VOYAGE_API_KEY:-}             # optional (Voyage AI embeddings, as in the course sample)
+    ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}       # optional (LLM answers); without it the built-in generator is used
+    OLLAMA_URL: ${OLLAMA_URL:-}                     # optional local model, e.g. http://host.docker.internal:11434
+    # ---- Final assessment: Kavach Assist (LLM chat on MongoDB). Secrets come from .env, never from this file.
+    LLM_BACKEND: ${LLM_BACKEND:-auto}               # auto | ollama | openai | anthropic | builtin
+    OLLAMA_BASE_URL: ${OLLAMA_BASE_URL:-http://ollama:11434}   # the ollama service below, or http://host.docker.internal:11434
+    ASSIST_OLLAMA_MODEL: ${ASSIST_OLLAMA_MODEL:-auto}           # auto = llama3.2:3b (llama3.2:1b on a small Docker VM)
+    OPENAI_API_KEY: ${OPENAI_API_KEY:-}             # optional hosted model (the assignment's option 1)
+    ADMIN_EMAIL: ${ADMIN_EMAIL:-admin@kavach.local}
+    ADMIN_PASSWORD: ${ADMIN_PASSWORD:-}             # empty: a random password is generated and printed once in the lab7 log
+    JWT_SECRET: ${JWT_SECRET:-}                     # empty: generated once and kept in MongoDB
+    GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID:-}         # enables "Continue with Google" (README: Google sign-in)
+    CHAT_RATE_PER_MIN: ${CHAT_RATE_PER_MIN:-20}
+
+x-prod-node: &prodnode                  # Lab 13.1: every member of the production replica set
+  image: mongo:7.0
+  init: true                            # tini = PID 1, so a killed mongod exits the container and the restart policy applies
+  restart: unless-stopped
+  stop_grace_period: 30s
+  networks: [rsnet]
+  command: ["mongod", "--replSet", "rs0", "--bind_ip_all", "--port", "27017", "--keyFile", "/etc/mongodb/keyfile",
+            "--wiredTigerCacheSizeGB", "0.25"]
+  depends_on:
+    lab13-keyfile: {condition: service_completed_successfully}
+  ulimits:
+    nofile: {soft: 64000, hard: 64000}
+  logging:
+    driver: json-file
+    options: {max-size: "10m", max-file: "3"}
+  deploy:
+    resources:
+      limits: {cpus: "1.0", memory: 768M}
+  healthcheck:                          # ping needs no log-in: no password in the health check
+    test: ["CMD", "mongosh", "--quiet", "--eval", "db.adminCommand('ping').ok"]
+    interval: 10s
+    timeout: 5s
+    retries: 6
+    start_period: 20s
+
+x-shard-node: &shardnode                # every mongod of the sharded cluster: small cache, health check by ping
+  image: mongo:7.0
+  networks: [rsnet]
+  restart: unless-stopped
+
+services:
+  mongo1:
+    image: mongo:7.0
+    container_name: mongo1
+    hostname: mongo1
+    command: ["mongod", "--replSet", "rs0", "--bind_ip_all", "--port", "27017"]
+    ports: ["27017:27017"]
+    volumes: ["mongo1-data:/data/db"]
+    networks: [rsnet]
+    healthcheck:
+      test: ["CMD", "mongosh", "--port", "27017", "--quiet", "--eval", "db.adminCommand('ping').ok"]
+      interval: 10s
+      timeout: 5s
+      retries: 6
+
+  mongo2:
+    image: mongo:7.0
+    container_name: mongo2
+    hostname: mongo2
+    command: ["mongod", "--replSet", "rs0", "--bind_ip_all", "--port", "27018"]
+    ports: ["27018:27018"]
+    volumes: ["mongo2-data:/data/db"]
+    networks: [rsnet]
+    healthcheck:
+      test: ["CMD", "mongosh", "--port", "27018", "--quiet", "--eval", "db.adminCommand('ping').ok"]
+      interval: 10s
+      timeout: 5s
+      retries: 6
+
+  mongo3:
+    image: mongo:7.0
+    container_name: mongo3
+    hostname: mongo3
+    command: ["mongod", "--replSet", "rs0", "--bind_ip_all", "--port", "27019"]
+    ports: ["27019:27019"]
+    volumes: ["mongo3-data:/data/db"]
+    networks: [rsnet]
+    healthcheck:
+      test: ["CMD", "mongosh", "--port", "27019", "--quiet", "--eval", "db.adminCommand('ping').ok"]
+      interval: 10s
+      timeout: 5s
+      retries: 6
+
+  rs-init:                      # initialises rs0 once, then exits
+    <<: *lab
+    container_name: rs-init
+    command: ["rs-init"]
+    restart: "no"
+    depends_on:
+      mongo1: {condition: service_healthy}
+      mongo2: {condition: service_healthy}
+      mongo3: {condition: service_healthy}
+
+  lab7:                         # website + database + 5-minute auto-updater
+    <<: *lab
+    container_name: lab7
+    command: ["lab7"]
+    ports: ["8000:8000", "8443:8443"]               # 8443 = the same website over HTTPS (self-signed certificate)
+    environment: {<<: *env, LAB_MODE: "${LAB7_MODE:-quick}"}
+    depends_on:
+      rs-init: {condition: service_completed_successfully}
+    healthcheck:                                    # Lab 7 is active AND the /health endpoint answers (MongoDB reachable)
+      test: ["CMD-SHELL", "test -f /tmp/lab-ready && curl -fsS -o /dev/null --max-time 6 http://localhost:8000/health"]
+      interval: 5s
+      timeout: 8s
+      retries: 240
+
+  lab8:
+    <<: *lab
+    container_name: lab8
+    command: ["lab8"]
+    environment: {<<: *env, LAB_MODE: "${LAB8_MODE:-quick}"}
+    depends_on:
+      lab7: {condition: service_healthy}
+    healthcheck: &ready
+      test: ["CMD", "test", "-f", "/tmp/lab-ready"]
+      interval: 5s
+      timeout: 3s
+      retries: 240
+
+  lab9:
+    <<: *lab
+    container_name: lab9
+    command: ["lab9"]
+    environment: {<<: *env, LAB_MODE: "${LAB9_MODE:-quick}"}
+    depends_on:
+      lab8: {condition: service_healthy}
+    healthcheck: *ready
+
+  lab10:
+    <<: *lab
+    container_name: lab10
+    command: ["lab10"]
+    environment: {<<: *env, LAB_MODE: "${LAB10_MODE:-quick}"}     # full run: docker compose exec lab10 lab10 all
+    depends_on:
+      lab9: {condition: service_healthy}
+    healthcheck: *ready
+
+  # ---------------------------------------------------------------- Lab 11: sharded cluster
+  cfg1:
+    <<: *shardnode
+    container_name: cfg1
+    hostname: cfg1
+    command: ["mongod", "--configsvr", "--replSet", "cfgrs", "--bind_ip_all", "--port", "27101", "--dbpath", "/data/db",
+              "--wiredTigerCacheSizeGB", "0.25"]
+    volumes: ["cfg1-data:/data/db"]
+    healthcheck:
+      test: ["CMD", "mongosh", "--port", "27101", "--quiet", "--eval", "db.adminCommand('ping').ok"]
+      interval: 5s
+      timeout: 5s
+      retries: 24
+
+  shard-a1:
+    <<: *shardnode
+    container_name: shard-a1
+    hostname: shard-a1
+    command: ["mongod", "--shardsvr", "--replSet", "shardA", "--bind_ip_all", "--port", "27111", "--dbpath", "/data/db",
+              "--wiredTigerCacheSizeGB", "0.25"]
+    volumes: ["shard-a1-data:/data/db"]
+    healthcheck:
+      test: ["CMD", "mongosh", "--port", "27111", "--quiet", "--eval", "db.adminCommand('ping').ok"]
+      interval: 5s
+      timeout: 5s
+      retries: 24
+
+  shard-a2:
+    <<: *shardnode
+    container_name: shard-a2
+    hostname: shard-a2
+    command: ["mongod", "--shardsvr", "--replSet", "shardA", "--bind_ip_all", "--port", "27112", "--dbpath", "/data/db",
+              "--wiredTigerCacheSizeGB", "0.25"]
+    volumes: ["shard-a2-data:/data/db"]
+    healthcheck:
+      test: ["CMD", "mongosh", "--port", "27112", "--quiet", "--eval", "db.adminCommand('ping').ok"]
+      interval: 5s
+      timeout: 5s
+      retries: 24
+
+  shard-b1:
+    <<: *shardnode
+    container_name: shard-b1
+    hostname: shard-b1
+    command: ["mongod", "--shardsvr", "--replSet", "shardB", "--bind_ip_all", "--port", "27121", "--dbpath", "/data/db",
+              "--wiredTigerCacheSizeGB", "0.25"]
+    volumes: ["shard-b1-data:/data/db"]
+    healthcheck:
+      test: ["CMD", "mongosh", "--port", "27121", "--quiet", "--eval", "db.adminCommand('ping').ok"]
+      interval: 5s
+      timeout: 5s
+      retries: 24
+
+  shard-b2:
+    <<: *shardnode
+    container_name: shard-b2
+    hostname: shard-b2
+    command: ["mongod", "--shardsvr", "--replSet", "shardB", "--bind_ip_all", "--port", "27122", "--dbpath", "/data/db",
+              "--wiredTigerCacheSizeGB", "0.25"]
+    volumes: ["shard-b2-data:/data/db"]
+    healthcheck:
+      test: ["CMD", "mongosh", "--port", "27122", "--quiet", "--eval", "db.adminCommand('ping').ok"]
+      interval: 5s
+      timeout: 5s
+      retries: 24
+
+  mongos:                       # the router; it starts listening once shard-init has initiated cfgrs
+    image: mongo:7.0
+    container_name: mongos
+    hostname: mongos
+    command: ["mongos", "--configdb", "cfgrs/cfg1:27101", "--bind_ip_all", "--port", "27030"]
+    ports: ["27030:27030"]
+    networks: [rsnet]
+    restart: unless-stopped
+    depends_on:
+      cfg1: {condition: service_healthy}
+    healthcheck:
+      test: ["CMD", "mongosh", "--port", "27030", "--quiet", "--eval", "db.adminCommand('ping').ok"]
+      interval: 5s
+      timeout: 5s
+      retries: 60
+
+  shard-init:                   # rs.initiate cfgrs, shardA, shardB -> wait for mongos -> sh.addShard x2, then exits
+    <<: *lab
+    container_name: shard-init
+    command: ["shard-init"]
+    restart: "no"
+    depends_on:
+      cfg1: {condition: service_healthy}
+      shard-a1: {condition: service_healthy}
+      shard-a2: {condition: service_healthy}
+      shard-b1: {condition: service_healthy}
+      shard-b2: {condition: service_healthy}
+      mongos: {condition: service_started}    # not "healthy": mongos only listens AFTER cfgrs is initiated
+
+  lab11:
+    <<: *lab
+    container_name: lab11
+    command: ["lab11"]
+    environment: {<<: *env, LAB_MODE: "${LAB11_MODE:-full}"}
+    depends_on:
+      lab10: {condition: service_healthy}
+      shard-init: {condition: service_completed_successfully}
+    healthcheck: *ready
+
+  # ---------------------------------------------------------------- Lab 12: hardened server (auth + TLS)
+  lab12-certs:                  # Lab 12.2 automation: CA + server/client certificates + passwords + bootstrap, then exits
+    <<: *lab
+    container_name: lab12-certs
+    command: ["lab12-certs"]
+    restart: "no"
+
+  mongo-secure:                 # first boot: rs.initiate + admin through the localhost exception; then auth + requireTLS
+    image: mongo:7.0
+    container_name: mongo-secure
+    hostname: mongo-secure
+    entrypoint: ["bash", "/certs/bootstrap.sh"]
+    environment:
+      SECURE_MEMBER: "mongo-secure:27040"
+    ports: ["27040:27040"]
+    volumes: ["lab12-certs:/certs:ro", "mongo-secure-data:/data/db"]
+    networks: [rsnet]
+    restart: unless-stopped
+    depends_on:
+      lab12-certs: {condition: service_completed_successfully}
+    healthcheck:
+      test: ["CMD", "mongosh", "--host", "localhost", "--port", "27040", "--tls", "--tlsCAFile", "/certs/ca.crt",
+             "--tlsCertificateKeyFile", "/certs/client.pem", "--quiet", "--eval", "db.adminCommand('ping').ok"]
+      interval: 5s
+      timeout: 5s
+      retries: 60
+      start_period: 20s
+
+  lab12:
+    <<: *lab
+    container_name: lab12
+    command: ["lab12"]
+    environment: {<<: *env, LAB_MODE: "${LAB12_MODE:-full}"}
+    depends_on:
+      lab11: {condition: service_healthy}
+      mongo-secure: {condition: service_healthy}
+    healthcheck: *ready
+
+  # ---------------------------------------------------------------- Lab 13: containers, Kubernetes and the cloud
+  lab13-keyfile:                # 13.1 step 2: openssl rand -base64 756 > keyfile; chown 999:999; chmod 400 (+ passwords, Prometheus config)
+    <<: *labimage
+    container_name: lab13-keyfile
+    command: ["lab13-keyfile"]
+    restart: "no"
+    volumes: ["lab13-keyfile:/keys", "lab13-prod:/prod", "lab13-monitoring:/monitoring"]
+
+  prod-mongo-1:
+    <<: *prodnode
+    container_name: prod-mongo-1
+    hostname: prod-mongo-1
+    ports: ["27051:27017", "9216:9216"]          # 9216 = the exporter sidecar, which lives in THIS network namespace
+    volumes: ["prod-data-1:/data/db", "lab13-keyfile:/etc/mongodb:ro"]
+
+  prod-mongo-2:
+    <<: *prodnode
+    container_name: prod-mongo-2
+    hostname: prod-mongo-2
+    ports: ["27052:27017"]
+    volumes: ["prod-data-2:/data/db", "lab13-keyfile:/etc/mongodb:ro"]
+
+  prod-mongo-3:
+    <<: *prodnode
+    container_name: prod-mongo-3
+    hostname: prod-mongo-3
+    ports: ["27053:27017"]
+    volumes: ["prod-data-3:/data/db", "lab13-keyfile:/etc/mongodb:ro"]
+
+  prod-mongo-1-exporter:        # Activity: Prometheus exporter SIDECAR - same network namespace as prod-mongo-1
+    <<: *labimage
+    container_name: prod-mongo-1-exporter
+    init: true
+    command: ["exporter-sidecar"]
+    network_mode: "service:prod-mongo-1"
+    volumes: ["lab13-prod:/prod:ro"]
+    restart: unless-stopped
+    depends_on:
+      prod-mongo-1: {condition: service_healthy}
+
+  prometheus:                   # scrapes prod-mongo-1:9216 every 5 s, evaluates 4 alert rules - http://localhost:9090
+    image: prom/prometheus:v2.53.0
+    container_name: prometheus
+    command: ["--config.file=/etc/lab13/prometheus.yml", "--storage.tsdb.path=/prometheus",
+              "--storage.tsdb.retention.time=2d", "--web.enable-lifecycle"]
+    ports: ["9090:9090"]
+    volumes: ["lab13-monitoring:/etc/lab13:ro", "prometheus-data:/prometheus"]
+    networks: [rsnet]
+    restart: unless-stopped
+    depends_on:
+      lab13-keyfile: {condition: service_completed_successfully}
+
+  k3s:                          # Lab 13.2: a one-node Kubernetes (k3s) inside Docker - kubeconfig -> volume lab13-kube
+    image: rancher/k3s:v1.30.6-k3s1
+    container_name: k3s
+    hostname: k3s
+    privileged: true
+    entrypoint: ["/bin/sh", "-c"]
+    command:                    # cgroup v2: move the container's processes into a child cgroup first (as k3d does)
+      - |
+        if [ -f /sys/fs/cgroup/cgroup.controllers ]; then
+          mkdir -p /sys/fs/cgroup/init
+          xargs -rn1 < /sys/fs/cgroup/cgroup.procs > /sys/fs/cgroup/init/cgroup.procs || :
+          sed -e 's/ / +/g' -e 's/^/+/' < /sys/fs/cgroup/cgroup.controllers > /sys/fs/cgroup/cgroup.subtree_control || :
+        fi
+        exec /bin/k3s server --disable=traefik --disable=metrics-server --tls-san=k3s --write-kubeconfig=/output/kubeconfig.yaml --write-kubeconfig-mode=644
+    tmpfs: ["/run", "/var/run"]
+    ulimits:
+      nproc: 65535
+      nofile: {soft: 65535, hard: 65535}
+    volumes: ["k3s-data:/var/lib/rancher/k3s", "lab13-kube:/output"]
+    ports: ["6443:6443"]
+    networks: [rsnet]
+    restart: unless-stopped
+
+  lab13:
+    <<: *lab
+    container_name: lab13
+    command: ["lab13"]
+    environment: {<<: *env, LAB_MODE: "${LAB13_MODE:-full}"}
+    depends_on:
+      lab12: {condition: service_healthy}
+      prod-mongo-1: {condition: service_healthy}
+      prod-mongo-2: {condition: service_healthy}
+      prod-mongo-3: {condition: service_healthy}
+      prod-mongo-1-exporter: {condition: service_started}
+      prometheus: {condition: service_started}
+      k3s: {condition: service_started}
+    healthcheck: *ready
+
+  # ---------------------------------------------------------------- Lab 14: managing database services in production
+  lab14:                        # ops daemon (monitor every 30 s + hourly backups) + Lab 14.1 / activity / 14.2 / 14 on 13
+    <<: *lab
+    container_name: lab14
+    command: ["lab14"]
+    environment: {<<: *env, LAB_MODE: "${LAB14_MODE:-full}"}
+    depends_on:
+      lab13: {condition: service_healthy}
+    healthcheck: *ready
+
+  # ---------------------------------------------------------------- Lab 15: a MongoDB-backed product as a service
+  lab15:                        # TaskTracker SaaS setup + Lab 15.1 / activity / 15.2 / Lab 15 on 14..7
+    <<: *lab
+    container_name: lab15
+    command: ["lab15"]
+    environment: {<<: *env, LAB_MODE: "${LAB15_MODE:-full}"}
+    depends_on:
+      lab14: {condition: service_healthy}
+    healthcheck: *ready
+
+  # ---------------------------------------------------------------- Labs 16-18: Cassandra, Neo4j, MongoDB Atlas Local (vector search)
+  cassandra:                    # Lab 16 + 18: wide-column store (one node, small heap) - cqlsh: docker exec -it cassandra cqlsh
+    image: cassandra:4.1
+    container_name: cassandra
+    hostname: cassandra
+    environment:
+      MAX_HEAP_SIZE: 768M
+      HEAP_NEWSIZE: 200M
+      CASSANDRA_CLUSTER_NAME: kavach
+      CASSANDRA_DC: datacenter1
+      CASSANDRA_ENDPOINT_SNITCH: GossipingPropertyFileSnitch
+    ports: ["9042:9042"]
+    volumes: ["cassandra-data:/var/lib/cassandra"]
+    networks: [rsnet]
+    restart: unless-stopped
+
+  neo4j:                        # Lab 16 + 18: graph database - Browser http://localhost:7474 (neo4j / Lab16-neo4j!)
+    image: neo4j:5.26-community
+    container_name: neo4j
+    hostname: neo4j
+    environment:
+      NEO4J_AUTH: "neo4j/Lab16-neo4j!"
+      NEO4J_server_memory_heap_initial__size: 512m
+      NEO4J_server_memory_heap_max__size: 1g
+      NEO4J_server_memory_pagecache_size: 512m
+    ports: ["7474:7474", "7687:7687"]
+    volumes: ["neo4j-data:/data"]
+    networks: [rsnet]
+    restart: unless-stopped
+
+  atlas-local:                  # Lab 17: MongoDB 8 + mongot = Atlas Vector Search ($vectorSearch) on your laptop, no cloud account
+    image: mongodb/mongodb-atlas-local:8.0
+    container_name: atlas-local
+    hostname: atlas-local
+    ports: ["27060:27017"]
+    volumes: ["atlas-local-data:/data/db"]
+    networks: [rsnet]
+    restart: unless-stopped
+
+  lab16:                        # 16.1 three data models + activity (hybrid) + 16.2 FraudQueryService + Lab 16 on Lab 10
+    <<: *lab
+    container_name: lab16
+    command: ["lab16"]
+    environment: {<<: *env, LAB_MODE: "${LAB16_MODE:-full}"}
+    depends_on:
+      lab15: {condition: service_healthy}
+      cassandra: {condition: service_started}     # lab16 itself waits until Cassandra and Neo4j answer (first start ~1 min)
+      neo4j: {condition: service_started}
+    healthcheck: *ready
+
+  lab17:                        # 17.1 RAG + memory activity + 17.2 HNSW vs IVF + Ask Kavach (Lab 17 on Lab 7)
+    <<: *lab
+    container_name: lab17
+    command: ["lab17"]
+    environment: {<<: *env, LAB_MODE: "${LAB17_MODE:-full}"}
+    depends_on:
+      lab16: {condition: service_healthy}
+      atlas-local: {condition: service_started}
+    healthcheck: *ready
+
+  lab18:                        # the comparative capstone: 100,000 threats in MongoDB + Cassandra + Neo4j, report 18.2
+    <<: *lab
+    container_name: lab18
+    command: ["lab18"]
+    environment: {<<: *env, LAB_MODE: "${LAB18_MODE:-full}"}
+    depends_on:
+      lab17: {condition: service_healthy}
+    healthcheck: *ready
+
+  # ---------------------------------------------------------------- Final assessment: Kavach Assist (chat = lab7 website /#/assist)
+  ollama:                       # A.1 option 2: a small open model running locally; the web app pulls the model on first start
+    image: ollama/ollama:0.5.7
+    container_name: ollama
+    hostname: ollama
+    environment: {OLLAMA_KEEP_ALIVE: "30m"}
+    volumes: ["ollama-data:/root/.ollama"]
+    networks: [rsnet]
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "ollama", "list"]
+      interval: 15s
+      timeout: 10s
+      retries: 20
+
+  scanner-bot:                  # background service: scans ./scan_target + its own Linux system, fixes only after a "yes" in chat
+    <<: *labimage
+    container_name: scanner-bot
+    init: true
+    command: ["scanner-bot"]
+    environment: {<<: *env, SCAN_TARGET: /scan, SCAN_INTERVAL: "${SCAN_INTERVAL:-300}", SCAN_SYSTEM: "${SCAN_SYSTEM:-1}"}
+    volumes: ["./scan_target:/scan"]                # no Docker socket and no lab volumes: the bot only sees the folder it scans
+    networks: [rsnet]
+    restart: unless-stopped
+    depends_on:
+      rs-init: {condition: service_completed_successfully}
+    healthcheck:
+      test: ["CMD-SHELL", "find /tmp/scanner-alive -mmin -2 | grep -q ."]
+      interval: 20s
+      timeout: 5s
+      retries: 6
+
+networks:
+  rsnet:
+    name: kavach-net
+
+volumes:
+  mongo1-data:
+  mongo2-data:
+  mongo3-data:
+  cfg1-data:
+  shard-a1-data:
+  shard-a2-data:
+  shard-b1-data:
+  shard-b2-data:
+  mongo-secure-data:
+  lab12-certs:
+  lab13-keyfile:
+  lab13-prod:
+  lab13-monitoring:
+  lab13-kube:
+  prod-data-1:
+  prod-data-2:
+  prod-data-3:
+  prometheus-data:
+  k3s-data:
+  lab14-backups:
+  cassandra-data:
+  neo4j-data:
+  atlas-local-data:
+  ollama-data:

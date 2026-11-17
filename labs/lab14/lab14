@@ -1,0 +1,44 @@
+#!/usr/bin/env bash
+# lab14 - command menu (inside the container:  docker compose exec lab14 lab14 <cmd>)
+cd /app 2>/dev/null || cd "$(dirname "$0")/../.."
+PY="${PYTHON:-python3}"
+L14() { $PY -c "import json,sys; from backend.app import lab14 as L; $1" "${@:2}"; }
+URI() { L14 "print(L.uri(sys.argv[1]))" "$1"; }
+case "${1:-help}" in
+  all)       shift; $PY labs/lab14/run_lab14.py --report "$@" ;;
+  users)     shift; $PY labs/lab14/run_lab14.py --only users "$@" ;;
+  14.1)      shift; $PY labs/lab14/run_lab14.py --only 14.1 "$@" ;;
+  activity|drills) shift; $PY labs/lab14/run_lab14.py --only activity "$@" ;;
+  14.2)      shift; $PY labs/lab14/run_lab14.py --only 14.2 "$@" ;;
+  dr|billing) shift; $PY labs/lab14/run_lab14.py --only dr "$@" ;;
+  report)    shift; DOCKER_URL="${1:-${DOCKER_URL:-}}" $PY labs/lab14/make_report.py ;;
+  monitor)   shift; exec $PY labs/lab14/monitor_dashboard.py --uri "$(URI monitor_app)" --log results/metrics.log "$@" ;;
+  dashboard) exec $PY labs/lab14/monitor_dashboard.py --uri "$(URI monitor_app)" --log results/metrics.log --once ;;
+  lag)       L14 "r = L.lag_drill(); r.pop('series'); print(json.dumps(r, indent=1, default=str))" ;;
+  cache)     L14 "r = L.cache_drill(); print(json.dumps(r, indent=1, default=str))" ;;
+  backup)    L14 "print(json.dumps(L.backup_now(sys.argv[1]), indent=1, default=str))" "${2:-billing}" ;;
+  backups)   ls -la "${LAB14_BACKUP_DIR:-/backups}"/* ;;
+  verify)    $PY labs/lab14/backup_verify.py --uri "$(URI admin)" --backup-uri "$(URI backup_app)" --out "${LAB14_BACKUP_DIR:-/backups}/verify" verify ;;
+  pitr)      $PY labs/lab14/backup_verify.py --uri "$(URI admin)" --backup-uri "$(URI backup_app)" --out "${LAB14_BACKUP_DIR:-/backups}/pitr" pitr ;;
+  benchmark) $PY labs/lab14/backup_verify.py --uri "$(URI admin)" --backup-uri "$(URI backup_app)" --out "${LAB14_BACKUP_DIR:-/backups}/bench" benchmark ;;
+  log)       tail -n "${2:-40}" results/metrics.log ;;
+  daemon)    tail -n "${2:-40}" results/lab14_daemon.log ;;
+  chain)     $PY orchestrator/labctl.py status ;;
+  *) cat <<'TXT'
+Exercise 14 - Managing database services in production (watches + backs up the Lab 13 production set prod rs0)
+
+  lab14 all              everything below + results/Exercise-14_Report.pdf                          (~3-5 min)
+  lab14 users            monitor_app + backup_app (least privilege) and what each may do
+  lab14 14.1             monitoring table of every member -> results/metrics.log
+  lab14 activity         webhook test + replication-lag drill + cold-cache drill (thresholds fire for real)
+  lab14 14.2             backups, 7-day retention, restore verification, point-in-time restore, benchmark, RPO/RTO
+  lab14 dr               Lab 14 on 13/10: billing ledger attacked, then recovered to the second before the attack
+  lab14 report [URL]     rebuild the PDF (URL = your Docker Hub page)
+  lab14 monitor          run monitor_dashboard.py in the foreground (every 30 s, Ctrl+C to stop)
+  lab14 dashboard        one table now          lab14 log [N]      last lines of results/metrics.log
+  lab14 lag | cache      one drill              lab14 backup [billing|kavach|prod-full]   one backup now
+  lab14 verify | pitr | benchmark   backup_verify.py with the production URIs    lab14 backups   list the folders
+Add --quick to all / activity / 14.2 for the shorter version.
+TXT
+  ;;
+esac

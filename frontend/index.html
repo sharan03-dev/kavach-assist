@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Kavach CTI - Threat intelligence, Kavach Assist chat + MongoDB Labs 7-18</title>
+  <meta name="description" content="Threat intelligence platform: IP verdicts, classified threat reports, MongoDB schema and cache labs.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cpath d='M16 2 4 7v8c0 7.5 5.1 13.4 12 15 6.9-1.6 12-7.5 12-15V7L16 2Z' fill='%23ffb000'/%3E%3Cpath d='M16 9v14M10 14h12' stroke='%23111a22' stroke-width='3' stroke-linecap='round'/%3E%3C/svg%3E">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,100..900&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/styles.css?v=19">
+  <link rel="stylesheet" href="assets/assist.css?v=19">
+  <style>.rail{overflow-y:auto!important;max-height:100vh}.rail .nav,.rail .rail-foot,.rail .brand{flex-shrink:0!important}</style>
+  <script>
+    try { const t = localStorage.getItem("kavach-theme"); if (t) document.documentElement.dataset.theme = t; } catch (e) {}
+  </script>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="i-overview" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12h4l3-8 4 16 3-8h4"/></symbol>
+    <symbol id="i-feed" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 6h16M4 12h16M4 18h10"/></symbol>
+    <symbol id="i-ip" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.8 3 2.8 15 0 18M12 3c-2.8 3-2.8 15 0 18"/></symbol>
+    <symbol id="i-classify" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h10M4 12h7M4 17h5"/><path d="m14 15 3 3 5-6"/></symbol>
+    <symbol id="i-sources" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M5 19a14 14 0 0 1 14-14M5 12a7 7 0 0 1 7-7"/><circle cx="6" cy="18" r="1.6" fill="currentColor"/></symbol>
+    <symbol id="i-schema" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><rect x="3" y="4" width="7" height="6" rx="1.5"/><rect x="14" y="4" width="7" height="6" rx="1.5"/><rect x="8.5" y="14" width="7" height="6" rx="1.5"/><path d="M6.5 10v2h11v-2M12 12v2"/></symbol>
+    <symbol id="i-cache" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M7 15l3-4 3 2 4-5"/></symbol>
+    <symbol id="i-vuln" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3 5 6v5c0 4.6 3 8.6 7 10 4-1.4 7-5.4 7-10V6l-7-3Z"/><path d="M12 8v5M12 16.2v.1"/></symbol>
+    <symbol id="i-chain" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="5" cy="12" r="2.4"/><circle cx="12" cy="12" r="2.4"/><circle cx="19" cy="12" r="2.4"/><path d="M7.4 12h2.2M14.4 12h2.2"/></symbol>
+    <symbol id="i-replica" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="6" rx="6" ry="2.6"/><path d="M6 6v5c0 1.4 2.7 2.6 6 2.6s6-1.2 6-2.6V6M6 11v5c0 1.4 2.7 2.6 6 2.6s6-1.2 6-2.6v-5"/></symbol>
+    <symbol id="i-write" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"/><path d="M12 7v5l3 2"/></symbol>
+    <symbol id="i-tx" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h13l-3-3M20 16H7l3 3"/></symbol>
+    <symbol id="i-shard" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="2.5" width="6" height="4.5" rx="1.2"/><rect x="2.5" y="16.5" width="7" height="5" rx="1.2"/><rect x="14.5" y="16.5" width="7" height="5" rx="1.2"/><path d="M12 7v4M6 16.5V13.5h12v3"/></symbol>
+    <symbol id="i-lock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="10.5" width="14" height="10" rx="2"/><path d="M8 10.5V7.5a4 4 0 0 1 8 0v3"/><path d="M12 14.5v2.5"/></symbol>
+    <symbol id="i-search" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></symbol>
+    <symbol id="i-menu" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></symbol>
+    <symbol id="i-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></symbol>
+    <symbol id="i-cloud" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M7 18h10a4 4 0 0 0 .6-7.95A6 6 0 0 0 6.2 9.1 4.5 4.5 0 0 0 7 18Z"/><path d="M9.5 14h5"/></symbol>
+    <symbol id="i-ops" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 13h3l2-5 3 9 2-6 2 2h6"/><path d="M4 20h16"/></symbol>
+    <symbol id="i-saas" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9h18M8 13h3M8 16h6"/></symbol>
+    <symbol id="i-graph" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="6" cy="6" r="2.4"/><circle cx="18" cy="7" r="2.4"/><circle cx="12" cy="18" r="2.4"/><path d="M8.2 7.2 15.6 7M7.2 8.2l3.8 7.6M16.9 9.1 13.2 16"/></symbol>
+    <symbol id="i-vector" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20 20 4M20 4h-6M20 4v6"/><circle cx="7" cy="8" r="1.4" fill="currentColor"/><circle cx="15" cy="17" r="1.4" fill="currentColor"/></symbol>
+    <symbol id="i-chat" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h16v11H9l-5 4V5Z"/><path d="M8 9h8M8 12.5h5"/></symbol>
+    <symbol id="i-admin" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.2"/><path d="M3 20c0-3.3 2.7-6 6-6s6 2.700 6 6"/><path d="M17 8.500l1.500 1.500 3-3.500"/></symbol>
+    <symbol id="i-trophy" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M8 4h8v5a4 4 0 0 1-8 0V4Z"/><path d="M8 6H5a3 3 0 0 0 3 4M16 6h3a3 3 0 0 1-3 4M12 13v4M8 20h8"/></symbol>
+  </defs>
+</svg>
+
+<div class="app">
+  <aside class="rail" id="rail">
+    <a class="brand" href="#/overview" aria-label="Kavach CTI home">
+      <svg width="30" height="30" viewBox="0 0 32 32" aria-hidden="true"><path d="M16 2 4 7v8c0 7.5 5.1 13.4 12 15 6.9-1.6 12-7.5 12-15V7L16 2Z" fill="var(--accent)"/><path d="M16 9v14M10 14h12" stroke="var(--bg)" stroke-width="3" stroke-linecap="round"/></svg>
+      <span><span class="brand-name">Kavach</span><span class="brand-sub">Cyber threat intelligence</span></span>
+    </a>
+    <nav class="nav" aria-label="Main">
+      <a href="#/assist" data-route="assist" class="nav-hi"><svg><use href="#i-chat"/></svg>Kavach Assist</a>
+      <a href="#/admin" data-route="admin" data-admin-only hidden><svg><use href="#i-admin"/></svg>Admin console</a>
+      <div class="nav-group">Threat intelligence</div>
+      <a href="#/overview" data-route="overview"><svg><use href="#i-overview"/></svg>Overview</a>
+      <a href="#/threats" data-route="threats"><svg><use href="#i-feed"/></svg>Threat feed</a>
+      <a href="#/vulns" data-route="vulns"><svg><use href="#i-vuln"/></svg>Vulnerabilities</a>
+      <a href="#/ip" data-route="ip"><svg><use href="#i-ip"/></svg>IP intelligence</a>
+      <a href="#/classify" data-route="classify"><svg><use href="#i-classify"/></svg>Classifier</a>
+      <a href="#/sources" data-route="sources"><svg><use href="#i-sources"/></svg>Sources</a>
+      <div class="nav-group">MongoDB labs 7 - 18</div>
+      <a href="#/labs" data-route="labs"><svg><use href="#i-chain"/></svg>Lab control centre</a>
+      <a href="#/lab71" data-route="lab71"><svg><use href="#i-schema"/></svg>Schema lab 7.1</a>
+      <a href="#/lab72" data-route="lab72"><svg><use href="#i-cache"/></svg>Cache lab 7.2</a>
+      <a href="#/lab8" data-route="lab8"><svg><use href="#i-replica"/></svg>Replica set lab 8</a>
+      <a href="#/lab9" data-route="lab9"><svg><use href="#i-write"/></svg>Write concern lab 9</a>
+      <a href="#/lab10" data-route="lab10"><svg><use href="#i-tx"/></svg>Transactions lab 10</a>
+      <a href="#/lab11" data-route="lab11"><svg><use href="#i-shard"/></svg>Sharding lab 11</a>
+      <a href="#/lab12" data-route="lab12"><svg><use href="#i-lock"/></svg>Security lab 12</a>
+      <a href="#/lab13" data-route="lab13"><svg><use href="#i-cloud"/></svg>Containers &amp; cloud lab 13</a>
+      <a href="#/lab14" data-route="lab14"><svg><use href="#i-ops"/></svg>Operations lab 14</a>
+      <a href="#/lab15" data-route="lab15"><svg><use href="#i-saas"/></svg>SaaS lab 15</a>
+      <a href="#/lab16" data-route="lab16"><svg><use href="#i-graph"/></svg>Cassandra + Neo4j lab 16</a>
+      <a href="#/lab17" data-route="lab17"><svg><use href="#i-vector"/></svg>Vector search lab 17</a>
+      <a href="#/lab18" data-route="lab18"><svg><use href="#i-trophy"/></svg>Capstone lab 18</a>
+    </nav>
+    <div class="rail-foot">
+      <div class="db-state" id="db-state"><span class="dot"></span><span>Checking MongoDB</span></div>
+      <button class="theme-btn" id="theme-btn" type="button"><svg width="15" height="15"><use href="#i-sun"/></svg><span>Light theme</span></button>
+    </div>
+  </aside>
+
+  <div class="main">
+    <header class="topbar">
+      <button class="menu-btn" id="menu-btn" aria-label="Open menu"><svg width="20" height="20"><use href="#i-menu"/></svg></button>
+      <form class="omni" id="omni" role="search" autocomplete="off">
+        <svg class="icon"><use href="#i-search"/></svg>
+        <label class="sr-only" for="omni-input">Check an IP, open a CVE dossier or search reports</label>
+        <input id="omni-input" type="search" placeholder="Check an IP, open a CVE dossier, or search threat reports" spellcheck="false">
+        <span class="hint"><span class="omni-type" id="omni-type" hidden></span><span class="kbd" id="kbd-hint">Ctrl K</span></span>
+      </form>
+      <div class="topbar-right" id="topbar-right"></div>
+    </header>
+    <div id="banner-slot"></div>
+    <main class="page" id="page" tabindex="-1"></main>
+  </div>
+</div>
+<div id="drawer-slot"></div>
+<div id="toast-slot" aria-live="polite"></div>
+
+<script src="assets/assist.js?v=19"></script>
+<script src="assets/worldmask.js"></script>
+<script src="assets/billing.js?v=19"></script>
+<script src="assets/lab11.js?v=19"></script>
+<script src="assets/lab12.js?v=19"></script>
+<script src="assets/lab13.js?v=19"></script>
+<script src="assets/lab14.js?v=19"></script>
+<script src="assets/lab15.js?v=19"></script>
+<script src="assets/polyglot.js?v=19"></script>
+<script src="assets/lab16.js?v=19"></script>
+<script src="assets/lab17.js?v=19"></script>
+<script src="assets/lab18.js?v=19"></script>
+<script src="assets/labs.js?v=19"></script>
+<script src="assets/app.js?v=19"></script>
+</body>
+</html>

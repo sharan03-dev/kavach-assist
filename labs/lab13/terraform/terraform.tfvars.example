@@ -1,0 +1,3 @@
+atlas_org_id        = "your-atlas-organisation-id"
+atlas_user_password = "a-long-random-password-of-16+-chars"
+access_cidr         = "203.0.113.7/32"   # your public IP: curl -s https://checkip.amazonaws.com

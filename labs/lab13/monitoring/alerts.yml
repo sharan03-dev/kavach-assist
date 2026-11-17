@@ -1,0 +1,28 @@
+# Lab 13 activity - alerting rules evaluated by Prometheus (see http://localhost:9090/alerts)
+groups:
+  - name: mongodb
+    rules:
+      - alert: MongoDBExporterDown
+        expr: up{job="mongodb"} == 0
+        for: 10s
+        labels: {severity: critical}
+        annotations:
+          summary: "The exporter sidecar of {{ $labels.member }} cannot be scraped"
+      - alert: MongoDBDown
+        expr: mongodb_up == 0
+        for: 10s
+        labels: {severity: critical}
+        annotations:
+          summary: "mongod {{ $labels.member }} does not answer the exporter"
+      - alert: ReplicaSetMemberNotHealthy
+        expr: max by (member_idx) (mongodb_rs_members_health) == 0
+        for: 10s
+        labels: {severity: warning}
+        annotations:
+          summary: "Replica-set member {{ $labels.member_idx }} is not healthy"
+      - alert: ReplicaSetNoPrimary
+        expr: absent(mongodb_rs_members_state == 1)
+        for: 15s
+        labels: {severity: critical}
+        annotations:
+          summary: "No PRIMARY in replica set rs0 (election in progress or majority lost)"
