@@ -1,0 +1,62 @@
+[
+  {
+    "_id": {
+      "$oid": "6afc796e509008a2f14a199c"
+    },
+    "product": "Amazon S3",
+    "family": "Key-Value (Object store)",
+    "reasoning": "Every object is stored and fetched by a unique object key and the store cannot query inside the object's contents.",
+    "use_case": "Storing user-uploaded photos/videos and data-lake files for an app",
+    "why": "Cheap, virtually unlimited, highly durable storage where files are always fetched whole by key.",
+    "best_for": "Large files, backups, static assets",
+    "limitation": "No querying inside objects; high latency vs. a database"
+  },
+  {
+    "_id": {
+      "$oid": "6afc796e509008a2f14a199d"
+    },
+    "product": "Couchbase",
+    "family": "Document",
+    "reasoning": "It stores JSON documents and can build secondary indexes and run SQL-like (N1QL/SQL++) queries on fields inside them.",
+    "use_case": "User profiles and shopping carts for an e-commerce site",
+    "why": "Each profile/cart is one flexible JSON document that is queried by fields and served fast from its built-in memory cache.",
+    "best_for": "Flexible JSON data with fast reads",
+    "limitation": "Weak at multi-document joins and complex relationships"
+  },
+  {
+    "_id": {
+      "$oid": "6afc796e509008a2f14a199e"
+    },
+    "product": "Apache HBase",
+    "family": "Column-Family (Wide-Column)",
+    "reasoning": "Data is organised by row key into column families and is built for very wide, sparse rows with millions of columns on HDFS.",
+    "use_case": "Storing billions of IoT sensor readings / message history",
+    "why": "Handles huge write volumes and fast range scans over a row key across a Hadoop cluster.",
+    "best_for": "Huge, sparse, write-heavy datasets",
+    "limitation": "No secondary indexes or joins; needs Hadoop/ZooKeeper to run"
+  },
+  {
+    "_id": {
+      "$oid": "6afc796e509008a2f14a199f"
+    },
+    "product": "Amazon Neptune",
+    "family": "Graph",
+    "reasoning": "It is purpose-built to store nodes and edges and query them with graph languages like Gremlin, openCypher and SPARQL.",
+    "use_case": "Fraud detection or friend-of-a-friend recommendations",
+    "why": "Multi-hop relationship traversals are fast, which would need many costly joins in other families.",
+    "best_for": "Highly connected data, relationship queries",
+    "limitation": "Poor for bulk aggregation/analytics; AWS-only managed service"
+  },
+  {
+    "_id": {
+      "$oid": "6afc796e509008a2f14a19a0"
+    },
+    "product": "Memcached",
+    "family": "Key-Value (in-memory cache)",
+    "reasoning": "It keeps arbitrary byte values in RAM indexed only by string keys, with no query language at all.",
+    "use_case": "Caching database query results and web sessions",
+    "why": "Sub-millisecond get/set from memory reduces load on the main database.",
+    "best_for": "Fast temporary caching",
+    "limitation": "No persistence or replication; data lost on restart"
+  }
+]

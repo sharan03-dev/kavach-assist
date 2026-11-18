@@ -1,0 +1,97 @@
+[
+  {
+    "_id": {
+      "$oid": "6afc7975805836e2bc4bb1e1"
+    },
+    "title": "The Pragmatic Programmer",
+    "author": "David Thomas & Andrew Hunt",
+    "year": 2019,
+    "genre": "Software Engineering",
+    "price": 54.989000000000004,
+    "publisher": {
+      "name": "Addison-Wesley",
+      "location": "Boston"
+    },
+    "tags": [
+      "programming",
+      "career",
+      "best-practices"
+    ]
+  },
+  {
+    "_id": {
+      "$oid": "6afc7975805836e2bc4bb1e2"
+    },
+    "title": "Designing Data-Intensive Applications",
+    "author": "Martin Kleppmann",
+    "year": 2017,
+    "genre": "Databases",
+    "price": 60.489000000000004,
+    "publisher": {
+      "name": "O'Reilly",
+      "location": "Sebastopol"
+    },
+    "tags": [
+      "databases",
+      "distributed-systems",
+      "NoSQL"
+    ]
+  },
+  {
+    "_id": {
+      "$oid": "6afc7975805836e2bc4bb1e3"
+    },
+    "title": "Deep Learning",
+    "author": "Goodfellow, Bengio, Courville",
+    "year": 2016,
+    "genre": "Machine Learning",
+    "price": 79.2,
+    "publisher": {
+      "name": "MIT Press",
+      "location": "Cambridge"
+    },
+    "tags": [
+      "AI",
+      "neural-networks",
+      "math"
+    ]
+  },
+  {
+    "_id": {
+      "$oid": "6afc7975805836e2bc4bb1e5"
+    },
+    "title": "Hands-On Machine Learning",
+    "author": "Aurelien Geron",
+    "year": 2022,
+    "genre": "Machine Learning",
+    "price": 65.989,
+    "publisher": {
+      "name": "O'Reilly",
+      "location": "Sebastopol"
+    },
+    "tags": [
+      "AI",
+      "python",
+      "scikit-learn"
+    ]
+  },
+  {
+    "_id": {
+      "$oid": "6afc7975805836e2bc4bb1e6"
+    },
+    "title": "MongoDB: The Definitive Guide",
+    "author": "Bradshaw, Brazil, Chodorow",
+    "year": 2021,
+    "genre": "Databases",
+    "price": 48.95,
+    "publisher": {
+      "name": "O'Reilly",
+      "location": "Sebastopol"
+    },
+    "tags": [
+      "databases",
+      "NoSQL",
+      "MongoDB"
+    ]
+  }
+]

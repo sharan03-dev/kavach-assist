@@ -1,0 +1,48 @@
+{
+  "Docker": {
+    "version": "8.0.23",
+    "gitVersion": "nogitversion",
+    "bits": 64,
+    "maxBsonObjectSize": 16777216,
+    "javascriptEngine": "mozjs",
+    "storageEngines": [
+      "devnull",
+      "wiredTiger"
+    ],
+    "openssl": {
+      "running": "OpenSSL 3.6.5 29 Sep 2026",
+      "compiled": "OpenSSL 3.5.7 9 Jun 2026"
+    },
+    "versionArray": [
+      8,
+      0,
+      23,
+      0
+    ],
+    "_replica_set": "standalone",
+    "_host": "mongodb://localhost:27017/"
+  },
+  "Atlas": {
+    "version": "7.0.34",
+    "gitVersion": "nogitversion",
+    "bits": 64,
+    "maxBsonObjectSize": 16777216,
+    "javascriptEngine": "mozjs",
+    "storageEngines": [
+      "devnull",
+      "wiredTiger"
+    ],
+    "openssl": {
+      "running": "OpenSSL 3.6.5 29 Sep 2026",
+      "compiled": "OpenSSL 3.5.7 9 Jun 2026"
+    },
+    "versionArray": [
+      7,
+      0,
+      34,
+      0
+    ],
+    "_replica_set": "standalone",
+    "_host": "mongodb://localhost:27018/"
+  }
+}

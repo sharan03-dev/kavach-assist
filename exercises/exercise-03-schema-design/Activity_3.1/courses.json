@@ -1,0 +1,206 @@
+{
+  "validator": {
+    "$jsonSchema": {
+      "bsonType": "object",
+      "required": [
+        "title",
+        "code",
+        "instructor",
+        "schedule"
+      ],
+      "properties": {
+        "title": {
+          "bsonType": "string"
+        },
+        "code": {
+          "bsonType": "string",
+          "pattern": "^[A-Z]{2,4}[0-9]{3}$",
+          "description": "course code like CS401"
+        },
+        "instructor": {
+          "bsonType": "string"
+        },
+        "schedule": {
+          "bsonType": "object",
+          "required": [
+            "days",
+            "time",
+            "room"
+          ],
+          "properties": {
+            "days": {
+              "bsonType": "array",
+              "minItems": 1,
+              "items": {
+                "bsonType": "string"
+              }
+            },
+            "time": {
+              "bsonType": "string"
+            },
+            "room": {
+              "bsonType": "string"
+            }
+          }
+        },
+        "roster": {
+          "bsonType": "array",
+          "items": {
+            "bsonType": "object",
+            "required": [
+              "name",
+              "student_id"
+            ],
+            "properties": {
+              "name": {
+                "bsonType": "string"
+              },
+              "student_id": {
+                "bsonType": "string"
+              },
+              "grade": {
+                "bsonType": [
+                  "string",
+                  "null"
+                ]
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "courses": [
+    {
+      "_id": {
+        "$oid": "6afc796ab355409eb3217e2e"
+      },
+      "code": "CS401",
+      "title": "NoSQL Databases using MongoDB",
+      "instructor": "Dr. Arvind Kumar",
+      "credits": 4,
+      "schedule": {
+        "days": [
+          "Monday",
+          "Wednesday"
+        ],
+        "time": "09:00-10:30",
+        "room": "B-204"
+      },
+      "roster": [
+        {
+          "name": "Aarav",
+          "student_id": "24CS001",
+          "grade": "A"
+        },
+        {
+          "name": "Diya",
+          "student_id": "24CS002",
+          "grade": "A+"
+        },
+        {
+          "name": "Ishaan",
+          "student_id": "24CS003",
+          "grade": "B+"
+        }
+      ]
+    },
+    {
+      "_id": {
+        "$oid": "6afc796ab355409eb3217e2f"
+      },
+      "code": "CS402",
+      "title": "Machine Learning",
+      "instructor": "Dr. Anita Desai",
+      "credits": 4,
+      "schedule": {
+        "days": [
+          "Tuesday",
+          "Thursday"
+        ],
+        "time": "11:00-12:30",
+        "room": "A-110"
+      },
+      "roster": [
+        {
+          "name": "Meera",
+          "student_id": "24CS004",
+          "grade": "A"
+        },
+        {
+          "name": "Aarav",
+          "student_id": "24CS001",
+          "grade": "A"
+        }
+      ]
+    },
+    {
+      "_id": {
+        "$oid": "6afc796ab355409eb3217e30"
+      },
+      "code": "CS405",
+      "title": "Computer Vision",
+      "instructor": "Dr. Arvind Kumar",
+      "credits": 3,
+      "schedule": {
+        "days": [
+          "Monday",
+          "Friday"
+        ],
+        "time": "14:00-15:30",
+        "room": "C-301"
+      },
+      "roster": [
+        {
+          "name": "Rohan",
+          "student_id": "24CS005",
+          "grade": "B"
+        },
+        {
+          "name": "Ananya",
+          "student_id": "24CS006",
+          "grade": null
+        }
+      ]
+    },
+    {
+      "_id": {
+        "$oid": "6afc796ab355409eb3217e31"
+      },
+      "code": "MA210",
+      "title": "Discrete Mathematics",
+      "instructor": "Dr. Meena Rao",
+      "credits": 3,
+      "schedule": {
+        "days": [
+          "Wednesday"
+        ],
+        "time": "10:45-12:15",
+        "room": "A-002"
+      },
+      "roster": [
+        {
+          "name": "Vikram",
+          "student_id": "24CS007",
+          "grade": "A"
+        }
+      ]
+    },
+    {
+      "_id": {
+        "$oid": "6afc796ab355409eb3217e34"
+      },
+      "code": "CS410",
+      "title": "Big Data",
+      "instructor": "Dr. Anita Desai",
+      "schedule": {
+        "days": [
+          "Thursday"
+        ],
+        "time": "15:45-17:15",
+        "room": "B-105"
+      },
+      "roster": []
+    }
+  ]
+}

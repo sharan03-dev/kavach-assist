@@ -1,0 +1,71 @@
+{
+  "wireless": [
+    {
+      "name": "Wireless Charger",
+      "price": 29.0
+    },
+    {
+      "name": "Wireless Mouse",
+      "price": 24.99
+    }
+  ],
+  "WIRELESS": [
+    {
+      "name": "Wireless Charger",
+      "price": 29.0
+    },
+    {
+      "name": "Wireless Mouse",
+      "price": 24.99
+    }
+  ],
+  "lamp": [
+    {
+      "name": "Desk Lamp",
+      "price": 42.0
+    }
+  ],
+  "o": [
+    {
+      "name": "Bluetooth Headphones",
+      "price": 149.0
+    },
+    {
+      "name": "Ergonomic Chair",
+      "price": 320.0
+    },
+    {
+      "name": "Laptop Stand",
+      "price": 35.0
+    },
+    {
+      "name": "Leather Notebook",
+      "price": 22.0
+    },
+    {
+      "name": "Mechanical Keyboard",
+      "price": 89.5
+    },
+    {
+      "name": "Noise-Cancel Earbuds",
+      "price": 199.0
+    },
+    {
+      "name": "Wireless Mouse",
+      "price": 24.99
+    }
+  ],
+  "usb-c": [
+    {
+      "name": "USB-C Cable",
+      "price": 9.99
+    }
+  ],
+  "phone": [
+    {
+      "name": "Bluetooth Headphones",
+      "price": 149.0
+    }
+  ],
+  "xyz": []
+}

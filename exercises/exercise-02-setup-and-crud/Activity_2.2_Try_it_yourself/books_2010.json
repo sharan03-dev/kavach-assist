@@ -1,0 +1,83 @@
+[
+  {
+    "_id": {
+      "$oid": "6afc7976307cf16b7f901ebc"
+    },
+    "title": "The C Programming Language",
+    "author": "Kernighan & Ritchie",
+    "year": 1988,
+    "price": 49.50000000000001
+  },
+  {
+    "_id": {
+      "$oid": "6afc7976307cf16b7f901ebd"
+    },
+    "title": "Design Patterns",
+    "author": "Gamma, Helm, Johnson, Vlissides",
+    "year": 1994,
+    "price": 60.50000000000001
+  },
+  {
+    "_id": {
+      "$oid": "6afc7976307cf16b7f901ebe"
+    },
+    "title": "Code Complete",
+    "author": "Steve McConnell",
+    "year": 2004,
+    "price": 46.75000000000001
+  },
+  {
+    "_id": {
+      "$oid": "6afc7976307cf16b7f901ebf"
+    },
+    "title": "Clean Code",
+    "author": "Robert C. Martin",
+    "year": 2008,
+    "price": 43.989000000000004
+  },
+  {
+    "_id": {
+      "$oid": "6afc7976307cf16b7f901ec0"
+    },
+    "title": "Introduction to Algorithms",
+    "author": "Cormen et al.",
+    "year": 2009,
+    "price": 97.9
+  },
+  {
+    "_id": {
+      "$oid": "6afc7976307cf16b7f901ec1"
+    },
+    "title": "MongoDB: The Definitive Guide",
+    "author": "Bradshaw et al.",
+    "year": 2010,
+    "price": 44.5
+  },
+  {
+    "_id": {
+      "$oid": "6afc7976307cf16b7f901ec2"
+    },
+    "title": "Deep Learning",
+    "author": "Goodfellow et al.",
+    "year": 2016,
+    "price": 72.0
+  },
+  {
+    "_id": {
+      "$oid": "6afc7976307cf16b7f901ec3"
+    },
+    "title": "Designing Data-Intensive Applications",
+    "author": "Martin Kleppmann",
+    "year": 2017,
+    "price": 54.99
+  },
+  {
+    "_id": {
+      "$oid": "6afc7976307cf16b7f901ec4"
+    },
+    "title": "Hands-On Machine Learning",
+    "author": "Aurelien Geron",
+    "year": 2022,
+    "price": 59.99
+  }
+]

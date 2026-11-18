@@ -1,0 +1,69 @@
+[
+  {
+    "_id": {
+      "$oid": "6afc79724ec5dceb8dc19232"
+    },
+    "sku": "A",
+    "name": "Wireless Mouse",
+    "price": 22.49,
+    "stock": 60,
+    "is_active": true,
+    "updated_at": {
+      "$date": "2026-11-17T15:57:38.562Z"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6afc79724ec5dceb8dc19233"
+    },
+    "sku": "B",
+    "name": "Mechanical Keyboard",
+    "price": 89.5,
+    "stock": 30,
+    "is_active": true
+  },
+  {
+    "_id": {
+      "$oid": "6afc79724ec5dceb8dc19234"
+    },
+    "sku": "C",
+    "name": "USB-C Hub",
+    "price": 45.0,
+    "stock": 15,
+    "is_active": true
+  },
+  {
+    "_id": {
+      "$oid": "6afc79724ec5dceb8dc19235"
+    },
+    "sku": "D",
+    "name": "VGA Adapter",
+    "price": 12.0,
+    "stock": 3,
+    "is_active": false
+  },
+  {
+    "_id": {
+      "$oid": "6afc79724ec5dceb8dc19236"
+    },
+    "sku": "E",
+    "name": "Floppy Drive",
+    "price": 19.0,
+    "stock": 1,
+    "is_active": false
+  },
+  {
+    "_id": {
+      "$oid": "6afc7972eb2c3078d4c36933"
+    },
+    "sku": "F",
+    "is_active": true,
+    "name": "New product F",
+    "price": 14.5,
+    "stock": 0,
+    "tags": [],
+    "updated_at": {
+      "$date": "2026-11-17T15:57:38.564Z"
+    }
+  }
+]

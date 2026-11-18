@@ -1,0 +1,346 @@
+{
+  "insert_no_indexes_s": [
+    0.09057105500005491,
+    0.06691006500000185,
+    0.08212301900005059
+  ],
+  "insert_5_indexes_s": [
+    0.24395049999998264,
+    0.2616669170000705,
+    0.2944794020000927
+  ],
+  "median_no_indexes_s": 0.08212301900005059,
+  "median_5_indexes_s": 0.2616669170000705,
+  "percentage_slowdown": 218.63,
+  "query_comparison": [
+    {
+      "query": "Q1 category + sort price",
+      "ms_5_indexes": 0.926,
+      "ms_1_index": 0.876
+    },
+    {
+      "query": "Q2 price 100-150",
+      "ms_5_indexes": 4.683,
+      "ms_1_index": 10.28
+    },
+    {
+      "query": "Q3 tag = 'limited'",
+      "ms_5_indexes": 14.506,
+      "ms_1_index": 19.238
+    },
+    {
+      "query": "Q4 name contains 'camera'",
+      "ms_5_indexes": 14.145,
+      "ms_1_index": 14.938
+    },
+    {
+      "query": "Q5 rating>=4.8 & in stock",
+      "ms_5_indexes": 5.006,
+      "ms_1_index": 14.1
+    }
+  ],
+  "remaining_indexes": [
+    {
+      "v": 2,
+      "key": {
+        "_id": 1
+      },
+      "name": "_id_"
+    },
+    {
+      "v": 2,
+      "key": {
+        "category": 1,
+        "price": 1
+      },
+      "name": "category_1_price_1"
+    }
+  ],
+  "sample_documents": [
+    {
+      "_id": {
+        "$oid": "6afc79686a7f14ae1120e55c"
+      },
+      "name": "Classic Novel 0",
+      "category": "Sports",
+      "price": 541.05,
+      "rating": 4.7,
+      "stock": 98,
+      "tags": [
+        "limited",
+        "gift"
+      ]
+    },
+    {
+      "_id": {
+        "$oid": "6afc79686a7f14ae1120e55d"
+      },
+      "name": "Classic Bottle 1",
+      "category": "Electronics",
+      "price": 126.18,
+      "rating": 1.4,
+      "stock": 197,
+      "tags": [
+        "limited",
+        "gift"
+      ]
+    },
+    {
+      "_id": {
+        "$oid": "6afc79686a7f14ae1120e55e"
+      },
+      "name": "Prime Speaker 2",
+      "category": "Beauty",
+      "price": 997.33,
+      "rating": 4.0,
+      "stock": 242,
+      "tags": [
+        "imported",
+        "bestseller"
+      ]
+    },
+    {
+      "_id": {
+        "$oid": "6afc79686a7f14ae1120e55f"
+      },
+      "name": "Ultra Shirt 3",
+      "category": "Clothing",
+      "price": 159.11,
+      "rating": 3.1,
+      "stock": 380,
+      "tags": [
+        "eco-friendly",
+        "sale",
+        "gift"
+      ]
+    },
+    {
+      "_id": {
+        "$oid": "6afc79686a7f14ae1120e560"
+      },
+      "name": "Prime Camera 4",
+      "category": "Sports",
+      "price": 362.99,
+      "rating": 3.9,
+      "stock": 303,
+      "tags": [
+        "gift",
+        "sale"
+      ]
+    },
+    {
+      "_id": {
+        "$oid": "6afc79686a7f14ae1120e561"
+      },
+      "name": "Daily Shirt 5",
+      "category": "Clothing",
+      "price": 788.03,
+      "rating": 1.3,
+      "stock": 98,
+      "tags": [
+        "eco-friendly",
+        "bestseller",
+        "imported"
+      ]
+    },
+    {
+      "_id": {
+        "$oid": "6afc79686a7f14ae1120e562"
+      },
+      "name": "Super Camera 6",
+      "category": "Sports",
+      "price": 735.81,
+      "rating": 4.6,
+      "stock": 200,
+      "tags": [
+        "sale",
+        "gift",
+        "imported"
+      ]
+    },
+    {
+      "_id": {
+        "$oid": "6afc79686a7f14ae1120e563"
+      },
+      "name": "Prime Bag 7",
+      "category": "Beauty",
+      "price": 405.42,
+      "rating": 3.3,
+      "stock": 438,
+      "tags": [
+        "imported",
+        "gift"
+      ]
+    },
+    {
+      "_id": {
+        "$oid": "6afc79686a7f14ae1120e564"
+      },
+      "name": "Daily Shirt 8",
+      "category": "Toys",
+      "price": 932.03,
+      "rating": 3.0,
+      "stock": 452,
+      "tags": [
+        "sale",
+        "eco-friendly",
+        "bestseller"
+      ]
+    },
+    {
+      "_id": {
+        "$oid": "6afc79686a7f14ae1120e565"
+      },
+      "name": "Daily Watch 9",
+      "category": "Beauty",
+      "price": 552.02,
+      "rating": 3.3,
+      "stock": 190,
+      "tags": [
+        "new",
+        "sale"
+      ]
+    },
+    {
+      "_id": {
+        "$oid": "6afc79686a7f14ae1120e566"
+      },
+      "name": "Pro Shoe 10",
+      "category": "Books",
+      "price": 558.31,
+      "rating": 2.2,
+      "stock": 72,
+      "tags": [
+        "limited"
+      ]
+    },
+    {
+      "_id": {
+        "$oid": "6afc79686a7f14ae1120e567"
+      },
+      "name": "Daily Shirt 11",
+      "category": "Beauty",
+      "price": 933.04,
+      "rating": 2.7,
+      "stock": 81,
+      "tags": [
+        "sale",
+        "gift",
+        "premium"
+      ]
+    },
+    {
+      "_id": {
+        "$oid": "6afc79686a7f14ae1120e568"
+      },
+      "name": "Prime Lamp 12",
+      "category": "Books",
+      "price": 922.41,
+      "rating": 2.9,
+      "stock": 26,
+      "tags": [
+        "sale"
+      ]
+    },
+    {
+      "_id": {
+        "$oid": "6afc79686a7f14ae1120e569"
+      },
+      "name": "Daily Bag 13",
+      "category": "Sports",
+      "price": 17.13,
+      "rating": 4.4,
+      "stock": 316,
+      "tags": [
+        "eco-friendly",
+        "premium"
+      ]
+    },
+    {
+      "_id": {
+        "$oid": "6afc79686a7f14ae1120e56a"
+      },
+      "name": "Eco Shoe 14",
+      "category": "Books",
+      "price": 700.79,
+      "rating": 2.0,
+      "stock": 246,
+      "tags": [
+        "bestseller",
+        "eco-friendly",
+        "sale"
+      ]
+    },
+    {
+      "_id": {
+        "$oid": "6afc79686a7f14ae1120e56b"
+      },
+      "name": "Max Bottle 15",
+      "category": "Clothing",
+      "price": 937.71,
+      "rating": 4.1,
+      "stock": 51,
+      "tags": [
+        "premium"
+      ]
+    },
+    {
+      "_id": {
+        "$oid": "6afc79686a7f14ae1120e56c"
+      },
+      "name": "Mini Speaker 16",
+      "category": "Clothing",
+      "price": 505.93,
+      "rating": 2.6,
+      "stock": 482,
+      "tags": [
+        "imported",
+        "new",
+        "premium"
+      ]
+    },
+    {
+      "_id": {
+        "$oid": "6afc79686a7f14ae1120e56d"
+      },
+      "name": "Smart Shoe 17",
+      "category": "Home",
+      "price": 399.96,
+      "rating": 2.6,
+      "stock": 299,
+      "tags": [
+        "imported",
+        "sale",
+        "bestseller"
+      ]
+    },
+    {
+      "_id": {
+        "$oid": "6afc79686a7f14ae1120e56e"
+      },
+      "name": "Daily Watch 18",
+      "category": "Home",
+      "price": 296.65,
+      "rating": 2.5,
+      "stock": 252,
+      "tags": [
+        "limited"
+      ]
+    },
+    {
+      "_id": {
+        "$oid": "6afc79686a7f14ae1120e56f"
+      },
+      "name": "Prime Shirt 19",
+      "category": "Sports",
+      "price": 909.14,
+      "rating": 4.4,
+      "stock": 316,
+      "tags": [
+        "gift",
+        "limited",
+        "bestseller"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,78 @@
+[
+  {
+    "_id": {
+      "$oid": "6afc797066fdd810a67b4807"
+    },
+    "domain": "Restaurant menus",
+    "traits": [
+      "flexible_schema",
+      "read_heavy",
+      "query_fields"
+    ],
+    "chosen_family": "Document (MongoDB)",
+    "matched_traits": 3
+  },
+  {
+    "_id": {
+      "$oid": "6afc797066fdd810a67b4808"
+    },
+    "domain": "Customer sessions & carts",
+    "traits": [
+      "point_lookup",
+      "low_latency",
+      "temporary"
+    ],
+    "chosen_family": "Key-Value (Redis)",
+    "matched_traits": 3
+  },
+  {
+    "_id": {
+      "$oid": "6afc797066fdd810a67b4809"
+    },
+    "domain": "Delivery partner live location",
+    "traits": [
+      "very_high_writes",
+      "low_latency",
+      "temporary"
+    ],
+    "chosen_family": "Key-Value (Redis)",
+    "matched_traits": 3
+  },
+  {
+    "_id": {
+      "$oid": "6afc797066fdd810a67b480a"
+    },
+    "domain": "Order history",
+    "traits": [
+      "append_only",
+      "time_range",
+      "huge_volume"
+    ],
+    "chosen_family": "Wide-Column (Cassandra)",
+    "matched_traits": 3
+  },
+  {
+    "_id": {
+      "$oid": "6afc797066fdd810a67b480b"
+    },
+    "domain": "Dish recommendations",
+    "traits": [
+      "relationships",
+      "multi_hop"
+    ],
+    "chosen_family": "Graph (Neo4j)",
+    "matched_traits": 2
+  },
+  {
+    "_id": {
+      "$oid": "6afc797066fdd810a67b480c"
+    },
+    "domain": "Restaurant photos",
+    "traits": [
+      "large_blobs",
+      "write_once_read_many"
+    ],
+    "chosen_family": "Object/Key-Value (Amazon S3)",
+    "matched_traits": 2
+  }
+]

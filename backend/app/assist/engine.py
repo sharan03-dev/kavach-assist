@@ -279,6 +279,10 @@ SYSTEM = ("You are Kavach Assist, the assistant of the Kavach cyber threat intel
           "answer briefly and start with 'General knowledge (not from Kavach data):'. If you do not know, say so. "
           "5) Be concise: at most 230 words, short markdown, no preamble.")
 
+SYSTEM_GENERAL = ("You are Kavach Assist, a friendly and knowledgeable AI assistant. This question is NOT about the Kavach threat data, so answer it "
+                  "from your own knowledge, like a normal AI assistant: clear, correct and helpful. Do not mention databases, passages or sources. "
+                  "If you are not sure of something, say so instead of guessing. Be concise (at most 230 words), short markdown, no preamble.")
+
 
 # ---------------------------------------------------------------------------- intent handlers -> a "plan"
 def plan_threats(u: dict) -> dict:
@@ -475,6 +479,21 @@ def plan_knowledge(u: dict, kinds: list[str] | None, intent: str) -> dict:
                    "Try asking about threats for a platform, a CVE id, the scanner bot, or one of the labs.")
     return {"intent": intent, "builtin": builtin, "facts": "", "passages": passages if good else "", "sources": used if good else [], "cards": [],
             "use_llm": True, "retrieval": r["mode"], "grounded": bool(good), "ctx": {"intent": intent}}
+
+
+def plan_general(u: dict) -> dict:
+    """Out-of-the-box questions: NO MongoDB lookup at all - the language model answers from its own knowledge."""
+    builtin = ("This is a general question, and general questions are answered by the local AI model (Ollama), which is not running right now. "
+               "Start it with `docker compose up -d ollama`, wait a minute and ask again. "
+               "Meanwhile I can still answer from stored data: threats for a platform, a CVE id, the scanner bot, or one of the labs.")
+    return {"intent": "general", "builtin": builtin, "facts": "", "passages": "", "sources": [], "cards": [], "use_llm": True,
+            "retrieval": "none - answered by the model", "grounded": False, "general": True, "ctx": {"intent": "general"}}
+
+
+def plan_direct() -> dict:
+    """The request goes straight to Ollama: no MongoDB search, no facts or passages are added - the model answers from its own (built-in) knowledge."""
+    return {"intent": "direct", "builtin": "", "facts": "", "passages": "", "sources": [], "cards": [], "use_llm": True, "direct": True,
+            "retrieval": "none - straight to the model", "grounded": False, "ctx": {"intent": "direct"}}
 
 
 def plan_labs_overview() -> dict:
@@ -727,7 +746,7 @@ def plan_ignore(u: dict, ctx: dict, user: dict) -> dict:
 
 
 # ---------------------------------------------------------------------------- the chat turn
-def make_plan(user: dict, conv: dict, text: str, ui_platform: str | None) -> dict:
+def make_plan(user: dict, conv: dict, text: str, ui_platform: str | None, direct_ok: bool = True) -> dict:
     ctx = conv.get("ctx") or {}
     pending = conv.get("pending")
     notice = ""
@@ -747,7 +766,11 @@ def make_plan(user: dict, conv: dict, text: str, ui_platform: str | None) -> dic
         return {"intent": "smalltalk", "builtin": "There is nothing waiting for a confirmation. What would you like to know?", "use_llm": False, "sources": [], "cards": [], "ctx": ctx}
     u = understand(text, ctx, ui_platform)
     i = u["intent"]
-    if i == "threats":
+    if direct_ok and S.CHAT_MODE == "direct" and i in ("threats", "stats", "cve", "threat_detail", "ioc", "lab", "general") and llm.backend()["provider"] != "builtin":
+        i = "direct"                                    # questions go straight to the language model; scanner actions and greetings keep their own handlers
+    if i == "direct":
+        p = plan_direct()
+    elif i == "threats":
         p = plan_threats(u)
     elif i == "stats":
         p = plan_stats(u)
@@ -780,7 +803,7 @@ def make_plan(user: dict, conv: dict, text: str, ui_platform: str | None) -> dic
     elif i == "scan_ignore":
         p = plan_ignore(u, ctx, user)
     else:
-        p = plan_knowledge(u, None, "general")
+        p = plan_general(u)
     if p.get("ctx") is None:
         p["ctx"] = ctx
     p["ctx"]["intent"] = p["intent"]
@@ -819,9 +842,10 @@ def chat_events(user: dict, text: str, conversation_id: str | None = None, platf
                 msgs.append(m)
         if msgs[0]["role"] == "assistant":
             msgs = msgs[1:]
-        prompt_text = SYSTEM + "\n".join(m["content"] for m in msgs)
+        system = SYSTEM_GENERAL if plan.get("general") else SYSTEM
+        prompt_text = system + "\n".join(m["content"] for m in msgs)
         try:
-            for piece in llm.stream(SYSTEM, msgs, usage):
+            for piece in llm.stream(system, msgs, usage, direct=bool(plan.get('direct'))):
                 answer += piece
                 yield {"type": "token", "text": piece}
             if not answer.strip():
@@ -833,6 +857,8 @@ def chat_events(user: dict, text: str, conversation_id: str | None = None, platf
             if answer:
                 yield {"type": "reset"}
             answer, use_llm = "", False
+            if plan.get("direct"):                      # the model did not answer in time: answer from the stored data instead of showing nothing
+                plan = make_plan(user, dict(conv, pending=None), text, platform, direct_ok=False)
     if not use_llm:
         answer = plan["builtin"]
         usage = {"provider": "builtin", "model": "built-in answer composer"}

@@ -1,0 +1,48 @@
+[
+  {
+    "_id": "CS101",
+    "title": "Programming in Python",
+    "prerequisites": []
+  },
+  {
+    "_id": "MA101",
+    "title": "Linear Algebra",
+    "prerequisites": []
+  },
+  {
+    "_id": "CS201",
+    "title": "Data Structures",
+    "prerequisites": [
+      "CS101"
+    ]
+  },
+  {
+    "_id": "CS220",
+    "title": "Database Management Systems",
+    "prerequisites": [
+      "CS201"
+    ]
+  },
+  {
+    "_id": "CS301",
+    "title": "Machine Learning",
+    "prerequisites": [
+      "CS201",
+      "MA101"
+    ]
+  },
+  {
+    "_id": "CS401",
+    "title": "NoSQL Databases using MongoDB",
+    "prerequisites": [
+      "CS220"
+    ]
+  },
+  {
+    "_id": "CS450",
+    "title": "Deep Learning",
+    "prerequisites": [
+      "CS301"
+    ]
+  }
+]

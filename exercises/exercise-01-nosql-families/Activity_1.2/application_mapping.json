@@ -1,0 +1,90 @@
+[
+  {
+    "_id": {
+      "$oid": "6afc796f79b1ad6b12a542fc"
+    },
+    "app": "Ride-Sharing",
+    "domain": "User profiles",
+    "pattern": "Read-heavy, point lookups by user id, flexible fields",
+    "family": "Document",
+    "database": "MongoDB",
+    "rationale": "Riders and drivers have different, changing attributes; one JSON document per user is read in a single lookup."
+  },
+  {
+    "_id": {
+      "$oid": "6afc796f79b1ad6b12a542fd"
+    },
+    "app": "Ride-Sharing",
+    "domain": "Ride history",
+    "pattern": "Write-heavy, append-only, range scans by user + time",
+    "family": "Wide-Column",
+    "database": "Apache Cassandra",
+    "rationale": "Partition by user, cluster by ride time: fast appends and 'last N rides' range scans at huge scale."
+  },
+  {
+    "_id": {
+      "$oid": "6afc796f79b1ad6b12a542fe"
+    },
+    "app": "Ride-Sharing",
+    "domain": "Real-time GPS tracking",
+    "pattern": "Very high write rate, latest value only, short-lived",
+    "family": "Key-Value",
+    "database": "Redis",
+    "rationale": "driver_id -> current location in memory, with geo commands and expiry; sub-millisecond reads for matching."
+  },
+  {
+    "_id": {
+      "$oid": "6afc796f79b1ad6b12a542ff"
+    },
+    "app": "Ride-Sharing",
+    "domain": "Payment transactions",
+    "pattern": "Must be consistent, multi-step updates",
+    "family": "Document",
+    "database": "MongoDB (ACID transactions)",
+    "rationale": "Multi-document transactions keep fare, wallet and ride status correct together."
+  },
+  {
+    "_id": {
+      "$oid": "6afc796f79b1ad6b12a54300"
+    },
+    "app": "Social Media Analytics",
+    "domain": "Posts and content",
+    "pattern": "Mixed read/write, nested data (media, hashtags)",
+    "family": "Document",
+    "database": "MongoDB",
+    "rationale": "A post with its media and tags is naturally one document and can be indexed by hashtag or author."
+  },
+  {
+    "_id": {
+      "$oid": "6afc796f79b1ad6b12a54301"
+    },
+    "app": "Social Media Analytics",
+    "domain": "Follower network",
+    "pattern": "Multi-hop relationship traversal",
+    "family": "Graph",
+    "database": "Neo4j",
+    "rationale": "'Friends of friends' and influencer paths are cheap edge traversals instead of repeated joins."
+  },
+  {
+    "_id": {
+      "$oid": "6afc796f79b1ad6b12a54302"
+    },
+    "app": "Social Media Analytics",
+    "domain": "Engagement events",
+    "pattern": "Massive write-heavy time-series of likes/views",
+    "family": "Wide-Column",
+    "database": "Apache Cassandra",
+    "rationale": "Billions of events per day, partitioned by post and time for fast writes and time-range reads."
+  },
+  {
+    "_id": {
+      "$oid": "6afc796f79b1ad6b12a54303"
+    },
+    "app": "Social Media Analytics",
+    "domain": "Media files",
+    "pattern": "Large binary blobs, write once read many",
+    "family": "Key-Value (Object)",
+    "database": "Amazon S3",
+    "rationale": "Images and videos fetched whole by key; cheap and durable."
+  }
+]

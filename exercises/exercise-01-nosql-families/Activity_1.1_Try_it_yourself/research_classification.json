@@ -1,0 +1,44 @@
+[
+  {
+    "_id": {
+      "$oid": "6afc796ef6fa420bedc54cb1"
+    },
+    "product": "ScyllaDB",
+    "families": [
+      "Column-Family (Wide-Column)"
+    ],
+    "fits_one_family": true,
+    "evidence": "A drop-in, C++ rewrite of Apache Cassandra: same CQL language, partition key + clustering columns, tables of wide rows.",
+    "best_for": "Very high-throughput, low-latency writes (chat, IoT, ad-tech)",
+    "verdict": "Fits neatly into ONE family - it is a wide-column store."
+  },
+  {
+    "_id": {
+      "$oid": "6afc796ef6fa420bedc54cb2"
+    },
+    "product": "InfluxDB",
+    "families": [
+      "Time-Series",
+      "Column-Family (columnar storage)"
+    ],
+    "fits_one_family": false,
+    "evidence": "Data is organised as measurement + tags + fields + timestamp; v3 stores it in columnar Apache Parquet files. Not one of the four classic families - it is a specialised time-series DB.",
+    "best_for": "Metrics, monitoring and sensor readings over time",
+    "verdict": "Does NOT fit the four classic families neatly - it is a time-series database built on columnar storage."
+  },
+  {
+    "_id": {
+      "$oid": "6afc796ef6fa420bedc54cb3"
+    },
+    "product": "ArangoDB",
+    "families": [
+      "Document",
+      "Graph",
+      "Key-Value"
+    ],
+    "fits_one_family": false,
+    "evidence": "A multi-model database: JSON document collections, edge collections for graph traversals, and key lookups, all queried with one language (AQL).",
+    "best_for": "Apps that need documents AND relationships in one engine",
+    "verdict": "Spans MULTIPLE families (document + graph + key-value)."
+  }
+]

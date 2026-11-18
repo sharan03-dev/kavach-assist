@@ -1,0 +1,109 @@
+{
+  "index": {
+    "category": 1,
+    "price": 1
+  },
+  "filter": {
+    "category": "Electronics",
+    "price": {
+      "$lt": 50
+    }
+  },
+  "results": [
+    {
+      "query": "[A] NOT covered - returns 'name' (not in the index)",
+      "projection": {
+        "_id": 0,
+        "category": 1,
+        "price": 1,
+        "name": 1
+      },
+      "stages": [
+        "PROJECTION_SIMPLE",
+        "FETCH",
+        "IXSCAN"
+      ],
+      "nReturned": 239,
+      "totalKeysExamined": 239,
+      "totalDocsExamined": 239,
+      "ms": 2,
+      "has_FETCH": true
+    },
+    {
+      "query": "[B] COVERED - returns only indexed fields, _id excluded",
+      "projection": {
+        "_id": 0,
+        "category": 1,
+        "price": 1
+      },
+      "stages": [
+        "PROJECTION_COVERED",
+        "IXSCAN"
+      ],
+      "nReturned": 239,
+      "totalKeysExamined": 239,
+      "totalDocsExamined": 0,
+      "ms": 0,
+      "has_FETCH": false
+    },
+    {
+      "query": "[C] NOT covered - _id left in the projection",
+      "projection": {
+        "category": 1,
+        "price": 1
+      },
+      "stages": [
+        "PROJECTION_SIMPLE",
+        "FETCH",
+        "IXSCAN"
+      ],
+      "nReturned": 239,
+      "totalKeysExamined": 239,
+      "totalDocsExamined": 239,
+      "ms": 1,
+      "has_FETCH": true
+    }
+  ],
+  "sample_covered_output": [
+    {
+      "category": "Electronics",
+      "price": 1.0
+    },
+    {
+      "category": "Electronics",
+      "price": 1.11
+    },
+    {
+      "category": "Electronics",
+      "price": 1.3
+    },
+    {
+      "category": "Electronics",
+      "price": 1.33
+    },
+    {
+      "category": "Electronics",
+      "price": 1.42
+    },
+    {
+      "category": "Electronics",
+      "price": 1.85
+    },
+    {
+      "category": "Electronics",
+      "price": 1.86
+    },
+    {
+      "category": "Electronics",
+      "price": 1.96
+    },
+    {
+      "category": "Electronics",
+      "price": 1.97
+    },
+    {
+      "category": "Electronics",
+      "price": 2.17
+    }
+  ]
+}

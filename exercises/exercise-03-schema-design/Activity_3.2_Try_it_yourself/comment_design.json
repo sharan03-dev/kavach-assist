@@ -1,0 +1,114 @@
+{
+  "embedded_doc_size_bytes": 1873411,
+  "embedded_read_ms": 9.475,
+  "subset_post": {
+    "_id": 1,
+    "title": "Viral post",
+    "comment_count": 10000,
+    "recent_comments": [
+      {
+        "user": "user499",
+        "text": "Comment number 9999 on this viral post. Comment number 9999 on this viral post. Comment number 9999 on this viral post. ",
+        "likes": 49,
+        "created": {
+          "$date": "2026-09-01T02:46:39Z"
+        }
+      },
+      {
+        "user": "user498",
+        "text": "Comment number 9998 on this viral post. Comment number 9998 on this viral post. Comment number 9998 on this viral post. ",
+        "likes": 48,
+        "created": {
+          "$date": "2026-09-01T02:46:38Z"
+        }
+      },
+      {
+        "user": "user497",
+        "text": "Comment number 9997 on this viral post. Comment number 9997 on this viral post. Comment number 9997 on this viral post. ",
+        "likes": 47,
+        "created": {
+          "$date": "2026-09-01T02:46:37Z"
+        }
+      },
+      {
+        "user": "user496",
+        "text": "Comment number 9996 on this viral post. Comment number 9996 on this viral post. Comment number 9996 on this viral post. ",
+        "likes": 46,
+        "created": {
+          "$date": "2026-09-01T02:46:36Z"
+        }
+      },
+      {
+        "user": "user495",
+        "text": "Comment number 9995 on this viral post. Comment number 9995 on this viral post. Comment number 9995 on this viral post. ",
+        "likes": 45,
+        "created": {
+          "$date": "2026-09-01T02:46:35Z"
+        }
+      }
+    ]
+  },
+  "subset_read_ms": 0.244,
+  "sample_comment_documents": [
+    {
+      "_id": {
+        "$oid": "6afc796d482fe8a2a69b901f"
+      },
+      "user": "user0",
+      "text": "Comment number 0 on this viral post. Comment number 0 on this viral post. Comment number 0 on this viral post. ",
+      "likes": 0,
+      "created": {
+        "$date": "2026-09-01T00:00:00Z"
+      },
+      "post_id": 1
+    },
+    {
+      "_id": {
+        "$oid": "6afc796d482fe8a2a69b9020"
+      },
+      "user": "user1",
+      "text": "Comment number 1 on this viral post. Comment number 1 on this viral post. Comment number 1 on this viral post. ",
+      "likes": 1,
+      "created": {
+        "$date": "2026-09-01T00:00:01Z"
+      },
+      "post_id": 1
+    },
+    {
+      "_id": {
+        "$oid": "6afc796d482fe8a2a69b9021"
+      },
+      "user": "user2",
+      "text": "Comment number 2 on this viral post. Comment number 2 on this viral post. Comment number 2 on this viral post. ",
+      "likes": 2,
+      "created": {
+        "$date": "2026-09-01T00:00:02Z"
+      },
+      "post_id": 1
+    },
+    {
+      "_id": {
+        "$oid": "6afc796d482fe8a2a69b9022"
+      },
+      "user": "user3",
+      "text": "Comment number 3 on this viral post. Comment number 3 on this viral post. Comment number 3 on this viral post. ",
+      "likes": 3,
+      "created": {
+        "$date": "2026-09-01T00:00:03Z"
+      },
+      "post_id": 1
+    },
+    {
+      "_id": {
+        "$oid": "6afc796d482fe8a2a69b9023"
+      },
+      "user": "user4",
+      "text": "Comment number 4 on this viral post. Comment number 4 on this viral post. Comment number 4 on this viral post. ",
+      "likes": 4,
+      "created": {
+        "$date": "2026-09-01T00:00:04Z"
+      },
+      "post_id": 1
+    }
+  ]
+}

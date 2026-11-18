@@ -289,7 +289,7 @@
       const llm = st.llm || {}, k = st.knowledge || {}, bot = st.bot || {};
       const idx = (k.index || {}).queryable;
       box.innerHTML = `<span class="ka-pill" title="${esc(llm.note || "")}"><span class="dot ${llm.provider === "builtin" ? "warn" : "ok"}"></span>Model: <b>${llm.provider === "builtin" ? "built-in writer" : esc(llm.model)}</b>${llm.provider === "builtin" && llm.note ? ` <span>(${esc(llm.note)})</span>` : llm.local ? " (local, Ollama)" : ""}${llm.provider !== "builtin" && llm.note ? ' <span class="dot warn"></span>' : ""}</span>
-        <span class="ka-pill"><span class="dot ${idx ? "ok" : "warn"}"></span>Knowledge: <b>${num(k.chunks || 0)} chunks</b> ${idx ? "- $vectorSearch" : "- exact search"}</span>
+        ${st.chat_mode === "direct" && llm.provider !== "builtin" ? `<span class="ka-pill"><span class="dot ok"></span>Answers: <b>straight from the model</b> - no database lookup</span>` : `<span class="ka-pill"><span class="dot ${idx ? "ok" : "warn"}"></span>Knowledge: <b>${num(k.chunks || 0)} chunks</b> ${idx ? "- $vectorSearch" : "- exact search"}</span>`}
         <span class="ka-pill"><span class="dot ${bot.online ? "ok" : "err"}"></span>Scanner bot: <b>${bot.online ? "online" : "offline"}</b>${st.open_findings ? ` - ${st.open_findings} open` : ""}</span>`;
     }
 
@@ -326,7 +326,7 @@
         <div class="ka-wrap"><aside class="ka-side"><h3>Your conversations</h3><div id="convs"></div></aside>
           <section class="ka-main"><div class="thread" id="thread" aria-live="polite"></div>
             <form class="composer" id="ka-form"><label class="sr-only" for="ka-input">Your question</label><textarea id="ka-input" rows="1" maxlength="2000" placeholder="Ask about threats, a CVE, the scanner bot or the labs..."></textarea><button class="btn primary" id="ka-send" type="submit">Send</button></form>
-            <div class="composer-hint"><span>Enter to send, Shift+Enter for a new line. Conversations are stored in MongoDB.</span><span id="ka-plat-hint">${S.platform ? `Platform: ${esc(S.platform)}` : "Platform: all"}</span></div></section></div>`;
+            <div class="composer-hint"><span>Enter to send, Shift+Enter for a new line. Your question goes straight to the Ollama model. Only the chat history is saved in MongoDB.</span><span id="ka-plat-hint">${S.platform ? `Platform: ${esc(S.platform)}` : "Platform: all"}</span></div></section></div>`;
       await refreshStatus();
       if (gen !== S.gen) return;
       const thread = $("#thread");

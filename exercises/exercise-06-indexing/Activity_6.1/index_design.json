@@ -1,0 +1,1529 @@
+{
+  "documents": 50000,
+  "before": [
+    {
+      "query": "Q1 category + sort by price",
+      "plan": "SORT > COLLSCAN",
+      "nReturned": 6315,
+      "totalDocsExamined": 50000,
+      "totalKeysExamined": 0,
+      "ms": 23
+    },
+    {
+      "query": "Q2 price range 100-150",
+      "plan": "COLLSCAN",
+      "nReturned": 2573,
+      "totalDocsExamined": 50000,
+      "totalKeysExamined": 0,
+      "ms": 17
+    },
+    {
+      "query": "Q3 tag = 'limited'",
+      "plan": "COLLSCAN",
+      "nReturned": 12423,
+      "totalDocsExamined": 50000,
+      "totalKeysExamined": 0,
+      "ms": 20
+    },
+    {
+      "query": "Q4 text search 'camera' on name",
+      "plan": "COLLSCAN",
+      "nReturned": 3221,
+      "totalDocsExamined": 50000,
+      "totalKeysExamined": 0,
+      "ms": 25
+    },
+    {
+      "query": "Q5 rating>=4.8 & in stock, top rated",
+      "plan": "SORT > COLLSCAN",
+      "nReturned": 3153,
+      "totalDocsExamined": 50000,
+      "totalKeysExamined": 0,
+      "ms": 25
+    }
+  ],
+  "after": [
+    {
+      "query": "Q1 category + sort by price",
+      "plan": "FETCH > IXSCAN(category_1_price_1)",
+      "nReturned": 6315,
+      "totalDocsExamined": 6315,
+      "totalKeysExamined": 6315,
+      "ms": 13
+    },
+    {
+      "query": "Q2 price range 100-150",
+      "plan": "FETCH > IXSCAN(price_1)",
+      "nReturned": 2573,
+      "totalDocsExamined": 2573,
+      "totalKeysExamined": 2573,
+      "ms": 5
+    },
+    {
+      "query": "Q3 tag = 'limited'",
+      "plan": "FETCH > IXSCAN(tags_1)",
+      "nReturned": 12423,
+      "totalDocsExamined": 12423,
+      "totalKeysExamined": 12423,
+      "ms": 14
+    },
+    {
+      "query": "Q4 text search 'camera' on name",
+      "plan": "TEXT_MATCH(name_text) > FETCH > IXSCAN(name_text)",
+      "nReturned": 3221,
+      "totalDocsExamined": 3221,
+      "totalKeysExamined": 3221,
+      "ms": 12
+    },
+    {
+      "query": "Q5 rating>=4.8 & in stock, top rated",
+      "plan": "FETCH > IXSCAN(rating_-1_stock_1)",
+      "nReturned": 3153,
+      "totalDocsExamined": 3153,
+      "totalKeysExamined": 3157,
+      "ms": 7
+    }
+  ],
+  "indexes": [
+    {
+      "v": 2,
+      "key": {
+        "_id": 1
+      },
+      "name": "_id_"
+    },
+    {
+      "v": 2,
+      "key": {
+        "category": 1,
+        "price": 1
+      },
+      "name": "category_1_price_1"
+    },
+    {
+      "v": 2,
+      "key": {
+        "price": 1
+      },
+      "name": "price_1"
+    },
+    {
+      "v": 2,
+      "key": {
+        "tags": 1
+      },
+      "name": "tags_1"
+    },
+    {
+      "v": 2,
+      "key": {
+        "_fts": "text",
+        "_ftsx": 1
+      },
+      "name": "name_text",
+      "weights": {
+        "name": 1
+      },
+      "default_language": "english",
+      "language_override": "language",
+      "textIndexVersion": 3
+    },
+    {
+      "v": 2,
+      "key": {
+        "rating": -1,
+        "stock": 1
+      },
+      "name": "rating_-1_stock_1"
+    }
+  ],
+  "sample_documents_first_100": [
+    {
+      "_id": {
+        "$oid": "6afc7964601b51dbcda72be1"
+      },
+      "name": "Smart Lamp 0",
+      "category": "Sports",
+      "price": 245.65,
+      "rating": 1.6,
+      "stock": 52,
+      "tags": [
+        "new",
+        "premium",
+        "eco-friendly"
+      ]
+    },
+    {
+      "_id": {
+        "$oid": "6afc7964601b51dbcda72be2"
+      },
+      "name": "Ultra Lamp 1",
+      "category": "Books",
+      "price": 219.42,
+      "rating": 3.0,
+      "stock": 13,
+      "tags": [
+        "eco-friendly",
+        "limited",
+        "gift"
+      ]
+    },
+    {
+      "_id": {
+        "$oid": "6afc7964601b51dbcda72be3"
+      },
+      "name": "Daily Shoe 2",
+      "category": "Home",
+      "price": 449.76,
+      "rating": 2.1,
+      "stock": 445,
+      "tags": [
+        "bestseller"
+      ]
+    },
+    {
+      "_id": {
+        "$oid": "6afc7964601b51dbcda72be4"
+      },
+      "name": "Max Novel 3",
+      "category": "Sports",
+      "price": 156.32,
+      "rating": 4.8,
+      "stock": 172,
+      "tags": [
+        "new"
+      ]
+    },
+    {
+      "_id": {
+        "$oid": "6afc7964601b51dbcda72be5"
+      },
+      "name": "Max Phone 4",
+      "category": "Toys",
+      "price": 847.65,
+      "rating": 3.4,
+      "stock": 413,
+      "tags": [
+        "imported"
+      ]
+    },
+    {
+      "_id": {
+        "$oid": "6afc7964601b51dbcda72be6"
+      },
+      "name": "Daily Phone 5",
+      "category": "Beauty",
+      "price": 79.72,
+      "rating": 2.2,
+      "stock": 321,
+      "tags": [
+        "limited",
+        "premium",
+        "new"
+      ]
+    },
+    {
+      "_id": {
+        "$oid": "6afc7964601b51dbcda72be7"
+      },
+      "name": "Smart Lamp 6",
+      "category": "Home",
+      "price": 773.3,
+      "rating": 4.9,
+      "stock": 437,
+      "tags": [
+        "new"
+      ]
+    },
+    {
+      "_id": {
+        "$oid": "6afc7964601b51dbcda72be8"
+      },
+      "name": "Max Speaker 7",
+      "category": "Grocery",
+      "price": 636.05,
+      "rating": 2.5,
+      "stock": 189,
+      "tags": [
+        "eco-friendly",
+        "limited"
+      ]
+    },
+    {
+      "_id": {
+        "$oid": "6afc7964601b51dbcda72be9"
+      },
+      "name": "Eco Kettle 8",
+      "category": "Books",
+      "price": 609.52,
+      "rating": 1.7,
+      "stock": 373,
+      "tags": [
+        "bestseller"
+      ]
+    },
+    {
+      "_id": {
+        "$oid": "6afc7964601b51dbcda72bea"
+      },
+      "name": "Super Shoe 9",
+      "category": "Sports",
+      "price": 989.53,
+      "rating": 3.6,
+      "stock": 285,
+      "tags": [
+        "limited"
+      ]
+    },
+    {
+      "_id": {
+        "$oid": "6afc7964601b51dbcda72beb"
+      },
+      "name": "Ultra Bottle 10",
+      "category": "Electronics",
+      "price": 805.24,
+      "rating": 2.6,
+      "stock": 33,
+      "tags": [
+        "limited"
+      ]
+    },
+    {
+      "_id": {
+        "$oid": "6afc7964601b51dbcda72bec"
+      },
+      "name": "Pro Camera 11",
+      "category": "Grocery",
+      "price": 396.24,
+      "rating": 4.7,
+      "stock": 234,
+      "tags": [
+        "premium"
+      ]
+    },
+    {
+      "_id": {
+        "$oid": "6afc7964601b51dbcda72bed"
+      },
+      "name": "Classic Bottle 12",
+      "category": "Sports",
+      "price": 747.27,
+      "rating": 2.7,
+      "stock": 298,
+      "tags": [
+        "limited",
+        "new"
+      ]
+    },
+    {
+      "_id": {
+        "$oid": "6afc7964601b51dbcda72bee"
+      },
+      "name": "Classic Bag 13",
+      "category": "Grocery",
+      "price": 91.82,
+      "rating": 1.2,
+      "stock": 56,
+      "tags": [
+        "bestseller"
+      ]
+    },
+    {
+      "_id": {
+        "$oid": "6afc7964601b51dbcda72bef"
+      },
+      "name": "Max Chair 14",
+      "category": "Books",
+      "price": 385.38,
+      "rating": 3.4,
+      "stock": 239,
+      "tags": [
+        "premium",
+        "imported",
+        "sale"
+      ]
+    },
+    {
+      "_id": {
+        "$oid": "6afc7964601b51dbcda72bf0"
+      },
+      "name": "Smart Camera 15",
+      "category": "Sports",
+      "price": 768.83,
+      "rating": 2.4,
+      "stock": 150,
+      "tags": [
+        "bestseller",
+        "eco-friendly"
+      ]
+    },
+    {
+      "_id": {
+        "$oid": "6afc7964601b51dbcda72bf1"
+      },
+      "name": "Ultra Kettle 16",
+      "category": "Sports",
+      "price": 971.92,
+      "rating": 4.0,
+      "stock": 259,
+      "tags": [
+        "premium"
+      ]
+    },
+    {
+      "_id": {
+        "$oid": "6afc7964601b51dbcda72bf2"
+      },
+      "name": "Daily Chair 17",
+      "category": "Home",
+      "price": 153.69,
+      "rating": 4.1,
+      "stock": 276,
+      "tags": [
+        "sale",
+        "premium",
+        "bestseller"
+      ]
+    },
+    {
+      "_id": {
+        "$oid": "6afc7964601b51dbcda72bf3"
+      },
+      "name": "Super Lamp 18",
+      "category": "Books",
+      "price": 929.17,
+      "rating": 4.5,
+      "stock": 425,
+      "tags": [
+        "eco-friendly",
+        "sale"
+      ]
+    },
+    {
+      "_id": {
+        "$oid": "6afc7964601b51dbcda72bf4"
+      },
+      "name": "Pro Puzzle 19",
+      "category": "Books",
+      "price": 86.57,
+      "rating": 2.9,
+      "stock": 35,
+      "tags": [
+        "bestseller",
+        "new",
+        "limited"
+      ]
+    },
+    {
+      "_id": {
+        "$oid": "6afc7964601b51dbcda72bf5"
+      },
+      "name": "Super Bag 20",
+      "category": "Clothing",
+      "price": 265.79,
+      "rating": 4.5,
+      "stock": 216,
+      "tags": [
+        "eco-friendly"
+      ]
+    },
+    {
+      "_id": {
+        "$oid": "6afc7964601b51dbcda72bf6"
+      },
+      "name": "Eco Shoe 21",
+      "category": "Toys",
+      "price": 438.66,
+      "rating": 3.1,
+      "stock": 61,
+      "tags": [
+        "eco-friendly"
+      ]
+    },
+    {
+      "_id": {
+        "$oid": "6afc7964601b51dbcda72bf7"
+      },
+      "name": "Smart Novel 22",
+      "category": "Electronics",
+      "price": 588.72,
+      "rating": 1.9,
+      "stock": 112,
+      "tags": [
+        "new"
+      ]
+    },
+    {
+      "_id": {
+        "$oid": "6afc7964601b51dbcda72bf8"
+      },
+      "name": "Ultra Bottle 23",
+      "category": "Books",
+      "price": 905.51,
+      "rating": 4.4,
+      "stock": 36,
+      "tags": [
+        "eco-friendly",
+        "bestseller",
+        "limited"
+      ]
+    },
+    {
+      "_id": {
+        "$oid": "6afc7964601b51dbcda72bf9"
+      },
+      "name": "Super Bottle 24",
+      "category": "Clothing",
+      "price": 723.63,
+      "rating": 4.5,
+      "stock": 295,
+      "tags": [
+        "eco-friendly",
+        "gift"
+      ]
+    },
+    {
+      "_id": {
+        "$oid": "6afc7964601b51dbcda72bfa"
+      },
+      "name": "Super Ball 25",
+      "category": "Beauty",
+      "price": 191.22,
+      "rating": 1.4,
+      "stock": 220,
+      "tags": [
+        "gift",
+        "eco-friendly"
+      ]
+    },
+    {
+      "_id": {
+        "$oid": "6afc7964601b51dbcda72bfb"
+      },
+      "name": "Super Cream 26",
+      "category": "Electronics",
+      "price": 673.69,
+      "rating": 4.9,
+      "stock": 50,
+      "tags": [
+        "gift"
+      ]
+    },
+    {
+      "_id": {
+        "$oid": "6afc7964601b51dbcda72bfc"
+      },
+      "name": "Mini Ball 27",
+      "category": "Books",
+      "price": 249.41,
+      "rating": 1.8,
+      "stock": 229,
+      "tags": [
+        "gift"
+      ]
+    },
+    {
+      "_id": {
+        "$oid": "6afc7964601b51dbcda72bfd"
+      },
+      "name": "Classic Speaker 28",
+      "category": "Grocery",
+      "price": 250.56,
+      "rating": 4.7,
+      "stock": 226,
+      "tags": [
+        "new",
+        "sale",
+        "limited"
+      ]
+    },
+    {
+      "_id": {
+        "$oid": "6afc7964601b51dbcda72bfe"
+      },
+      "name": "Daily Cream 29",
+      "category": "Electronics",
+      "price": 969.03,
+      "rating": 4.7,
+      "stock": 434,
+      "tags": [
+        "bestseller"
+      ]
+    },
+    {
+      "_id": {
+        "$oid": "6afc7964601b51dbcda72bff"
+      },
+      "name": "Max Watch 30",
+      "category": "Grocery",
+      "price": 214.53,
+      "rating": 2.6,
+      "stock": 30,
+      "tags": [
+        "gift"
+      ]
+    },
+    {
+      "_id": {
+        "$oid": "6afc7964601b51dbcda72c00"
+      },
+      "name": "Ultra Shoe 31",
+      "category": "Sports",
+      "price": 926.59,
+      "rating": 4.1,
+      "stock": 146,
+      "tags": [
+        "imported",
+        "new"
+      ]
+    },
+    {
+      "_id": {
+        "$oid": "6afc7964601b51dbcda72c01"
+      },
+      "name": "Pro Speaker 32",
+      "category": "Home",
+      "price": 968.74,
+      "rating": 3.3,
+      "stock": 277,
+      "tags": [
+        "limited"
+      ]
+    },
+    {
+      "_id": {
+        "$oid": "6afc7964601b51dbcda72c02"
+      },
+      "name": "Ultra Lamp 33",
+      "category": "Grocery",
+      "price": 503.35,
+      "rating": 4.4,
+      "stock": 80,
+      "tags": [
+        "new"
+      ]
+    },
+    {
+      "_id": {
+        "$oid": "6afc7964601b51dbcda72c03"
+      },
+      "name": "Classic Phone 34",
+      "category": "Books",
+      "price": 675.54,
+      "rating": 1.9,
+      "stock": 61,
+      "tags": [
+        "eco-friendly",
+        "premium",
+        "gift"
+      ]
+    },
+    {
+      "_id": {
+        "$oid": "6afc7964601b51dbcda72c04"
+      },
+      "name": "Ultra Chair 35",
+      "category": "Books",
+      "price": 419.81,
+      "rating": 3.3,
+      "stock": 267,
+      "tags": [
+        "premium",
+        "new"
+      ]
+    },
+    {
+      "_id": {
+        "$oid": "6afc7964601b51dbcda72c05"
+      },
+      "name": "Mini Bottle 36",
+      "category": "Sports",
+      "price": 396.39,
+      "rating": 3.7,
+      "stock": 153,
+      "tags": [
+        "limited",
+        "gift"
+      ]
+    },
+    {
+      "_id": {
+        "$oid": "6afc7964601b51dbcda72c06"
+      },
+      "name": "Smart Lamp 37",
+      "category": "Grocery",
+      "price": 621.54,
+      "rating": 3.3,
+      "stock": 51,
+      "tags": [
+        "eco-friendly"
+      ]
+    },
+    {
+      "_id": {
+        "$oid": "6afc7964601b51dbcda72c07"
+      },
+      "name": "Daily Speaker 38",
+      "category": "Clothing",
+      "price": 933.33,
+      "rating": 4.5,
+      "stock": 450,
+      "tags": [
+        "limited"
+      ]
+    },
+    {
+      "_id": {
+        "$oid": "6afc7964601b51dbcda72c08"
+      },
+      "name": "Eco Shirt 39",
+      "category": "Grocery",
+      "price": 833.91,
+      "rating": 3.8,
+      "stock": 313,
+      "tags": [
+        "sale",
+        "limited",
+        "premium"
+      ]
+    },
+    {
+      "_id": {
+        "$oid": "6afc7964601b51dbcda72c09"
+      },
+      "name": "Eco Puzzle 40",
+      "category": "Books",
+      "price": 938.99,
+      "rating": 1.5,
+      "stock": 59,
+      "tags": [
+        "bestseller"
+      ]
+    },
+    {
+      "_id": {
+        "$oid": "6afc7964601b51dbcda72c0a"
+      },
+      "name": "Eco Speaker 41",
+      "category": "Home",
+      "price": 717.89,
+      "rating": 1.8,
+      "stock": 324,
+      "tags": [
+        "imported",
+        "bestseller"
+      ]
+    },
+    {
+      "_id": {
+        "$oid": "6afc7964601b51dbcda72c0b"
+      },
+      "name": "Ultra Phone 42",
+      "category": "Beauty",
+      "price": 829.52,
+      "rating": 1.2,
+      "stock": 170,
+      "tags": [
+        "premium"
+      ]
+    },
+    {
+      "_id": {
+        "$oid": "6afc7964601b51dbcda72c0c"
+      },
+      "name": "Classic Kettle 43",
+      "category": "Grocery",
+      "price": 552.13,
+      "rating": 2.7,
+      "stock": 4,
+      "tags": [
+        "new"
+      ]
+    },
+    {
+      "_id": {
+        "$oid": "6afc7964601b51dbcda72c0d"
+      },
+      "name": "Classic Bag 44",
+      "category": "Electronics",
+      "price": 834.76,
+      "rating": 3.3,
+      "stock": 75,
+      "tags": [
+        "bestseller",
+        "sale"
+      ]
+    },
+    {
+      "_id": {
+        "$oid": "6afc7964601b51dbcda72c0e"
+      },
+      "name": "Eco Novel 45",
+      "category": "Electronics",
+      "price": 899.03,
+      "rating": 1.8,
+      "stock": 127,
+      "tags": [
+        "new",
+        "bestseller",
+        "premium"
+      ]
+    },
+    {
+      "_id": {
+        "$oid": "6afc7964601b51dbcda72c0f"
+      },
+      "name": "Max Chair 46",
+      "category": "Clothing",
+      "price": 925.84,
+      "rating": 1.9,
+      "stock": 83,
+      "tags": [
+        "gift"
+      ]
+    },
+    {
+      "_id": {
+        "$oid": "6afc7964601b51dbcda72c10"
+      },
+      "name": "Ultra Shirt 47",
+      "category": "Toys",
+      "price": 782.6,
+      "rating": 2.6,
+      "stock": 342,
+      "tags": [
+        "eco-friendly",
+        "bestseller",
+        "new"
+      ]
+    },
+    {
+      "_id": {
+        "$oid": "6afc7964601b51dbcda72c11"
+      },
+      "name": "Smart Shoe 48",
+      "category": "Electronics",
+      "price": 858.73,
+      "rating": 1.9,
+      "stock": 418,
+      "tags": [
+        "limited",
+        "bestseller"
+      ]
+    },
+    {
+      "_id": {
+        "$oid": "6afc7964601b51dbcda72c12"
+      },
+      "name": "Pro Bottle 49",
+      "category": "Electronics",
+      "price": 660.37,
+      "rating": 2.6,
+      "stock": 142,
+      "tags": [
+        "premium"
+      ]
+    },
+    {
+      "_id": {
+        "$oid": "6afc7964601b51dbcda72c13"
+      },
+      "name": "Mini Camera 50",
+      "category": "Beauty",
+      "price": 679.84,
+      "rating": 4.4,
+      "stock": 169,
+      "tags": [
+        "new"
+      ]
+    },
+    {
+      "_id": {
+        "$oid": "6afc7964601b51dbcda72c14"
+      },
+      "name": "Eco Shirt 51",
+      "category": "Sports",
+      "price": 39.22,
+      "rating": 3.4,
+      "stock": 176,
+      "tags": [
+        "limited",
+        "eco-friendly",
+        "premium"
+      ]
+    },
+    {
+      "_id": {
+        "$oid": "6afc7964601b51dbcda72c15"
+      },
+      "name": "Daily Phone 52",
+      "category": "Beauty",
+      "price": 899.61,
+      "rating": 1.8,
+      "stock": 22,
+      "tags": [
+        "gift",
+        "sale",
+        "premium"
+      ]
+    },
+    {
+      "_id": {
+        "$oid": "6afc7964601b51dbcda72c16"
+      },
+      "name": "Daily Camera 53",
+      "category": "Home",
+      "price": 364.86,
+      "rating": 1.3,
+      "stock": 340,
+      "tags": [
+        "limited",
+        "imported"
+      ]
+    },
+    {
+      "_id": {
+        "$oid": "6afc7964601b51dbcda72c17"
+      },
+      "name": "Smart Kettle 54",
+      "category": "Sports",
+      "price": 507.62,
+      "rating": 3.7,
+      "stock": 167,
+      "tags": [
+        "premium",
+        "imported"
+      ]
+    },
+    {
+      "_id": {
+        "$oid": "6afc7964601b51dbcda72c18"
+      },
+      "name": "Classic Bottle 55",
+      "category": "Beauty",
+      "price": 665.26,
+      "rating": 2.5,
+      "stock": 383,
+      "tags": [
+        "premium"
+      ]
+    },
+    {
+      "_id": {
+        "$oid": "6afc7964601b51dbcda72c19"
+      },
+      "name": "Max Bag 56",
+      "category": "Electronics",
+      "price": 304.57,
+      "rating": 1.8,
+      "stock": 402,
+      "tags": [
+        "limited",
+        "eco-friendly",
+        "gift"
+      ]
+    },
+    {
+      "_id": {
+        "$oid": "6afc7964601b51dbcda72c1a"
+      },
+      "name": "Super Camera 57",
+      "category": "Home",
+      "price": 511.66,
+      "rating": 4.2,
+      "stock": 491,
+      "tags": [
+        "bestseller",
+        "limited",
+        "sale"
+      ]
+    },
+    {
+      "_id": {
+        "$oid": "6afc7964601b51dbcda72c1b"
+      },
+      "name": "Eco Bag 58",
+      "category": "Toys",
+      "price": 94.29,
+      "rating": 4.8,
+      "stock": 120,
+      "tags": [
+        "premium",
+        "new",
+        "gift"
+      ]
+    },
+    {
+      "_id": {
+        "$oid": "6afc7964601b51dbcda72c1c"
+      },
+      "name": "Classic Lamp 59",
+      "category": "Electronics",
+      "price": 245.6,
+      "rating": 2.9,
+      "stock": 435,
+      "tags": [
+        "imported"
+      ]
+    },
+    {
+      "_id": {
+        "$oid": "6afc7964601b51dbcda72c1d"
+      },
+      "name": "Max Puzzle 60",
+      "category": "Home",
+      "price": 718.63,
+      "rating": 2.5,
+      "stock": 204,
+      "tags": [
+        "bestseller"
+      ]
+    },
+    {
+      "_id": {
+        "$oid": "6afc7964601b51dbcda72c1e"
+      },
+      "name": "Ultra Puzzle 61",
+      "category": "Books",
+      "price": 778.64,
+      "rating": 1.9,
+      "stock": 411,
+      "tags": [
+        "imported",
+        "sale",
+        "premium"
+      ]
+    },
+    {
+      "_id": {
+        "$oid": "6afc7964601b51dbcda72c1f"
+      },
+      "name": "Pro Puzzle 62",
+      "category": "Books",
+      "price": 457.01,
+      "rating": 4.2,
+      "stock": 341,
+      "tags": [
+        "limited",
+        "gift",
+        "eco-friendly"
+      ]
+    },
+    {
+      "_id": {
+        "$oid": "6afc7964601b51dbcda72c20"
+      },
+      "name": "Prime Cream 63",
+      "category": "Beauty",
+      "price": 830.74,
+      "rating": 3.2,
+      "stock": 459,
+      "tags": [
+        "imported"
+      ]
+    },
+    {
+      "_id": {
+        "$oid": "6afc7964601b51dbcda72c21"
+      },
+      "name": "Super Speaker 64",
+      "category": "Home",
+      "price": 840.02,
+      "rating": 2.1,
+      "stock": 398,
+      "tags": [
+        "imported",
+        "limited",
+        "new"
+      ]
+    },
+    {
+      "_id": {
+        "$oid": "6afc7964601b51dbcda72c22"
+      },
+      "name": "Eco Watch 65",
+      "category": "Books",
+      "price": 713.83,
+      "rating": 1.9,
+      "stock": 171,
+      "tags": [
+        "new",
+        "imported"
+      ]
+    },
+    {
+      "_id": {
+        "$oid": "6afc7964601b51dbcda72c23"
+      },
+      "name": "Classic Bottle 66",
+      "category": "Beauty",
+      "price": 694.26,
+      "rating": 3.8,
+      "stock": 32,
+      "tags": [
+        "gift",
+        "bestseller"
+      ]
+    },
+    {
+      "_id": {
+        "$oid": "6afc7964601b51dbcda72c24"
+      },
+      "name": "Daily Watch 67",
+      "category": "Beauty",
+      "price": 63.2,
+      "rating": 4.3,
+      "stock": 199,
+      "tags": [
+        "sale",
+        "gift",
+        "premium"
+      ]
+    },
+    {
+      "_id": {
+        "$oid": "6afc7964601b51dbcda72c25"
+      },
+      "name": "Max Watch 68",
+      "category": "Electronics",
+      "price": 942.8,
+      "rating": 2.2,
+      "stock": 199,
+      "tags": [
+        "eco-friendly",
+        "imported"
+      ]
+    },
+    {
+      "_id": {
+        "$oid": "6afc7964601b51dbcda72c26"
+      },
+      "name": "Pro Speaker 69",
+      "category": "Beauty",
+      "price": 486.16,
+      "rating": 2.6,
+      "stock": 342,
+      "tags": [
+        "gift",
+        "limited",
+        "new"
+      ]
+    },
+    {
+      "_id": {
+        "$oid": "6afc7964601b51dbcda72c27"
+      },
+      "name": "Super Puzzle 70",
+      "category": "Clothing",
+      "price": 980.74,
+      "rating": 3.1,
+      "stock": 464,
+      "tags": [
+        "sale",
+        "imported"
+      ]
+    },
+    {
+      "_id": {
+        "$oid": "6afc7964601b51dbcda72c28"
+      },
+      "name": "Max Shirt 71",
+      "category": "Grocery",
+      "price": 182.55,
+      "rating": 2.0,
+      "stock": 167,
+      "tags": [
+        "imported"
+      ]
+    },
+    {
+      "_id": {
+        "$oid": "6afc7964601b51dbcda72c29"
+      },
+      "name": "Mini Novel 72",
+      "category": "Beauty",
+      "price": 278.98,
+      "rating": 4.8,
+      "stock": 215,
+      "tags": [
+        "new",
+        "eco-friendly"
+      ]
+    },
+    {
+      "_id": {
+        "$oid": "6afc7964601b51dbcda72c2a"
+      },
+      "name": "Ultra Kettle 73",
+      "category": "Electronics",
+      "price": 999.91,
+      "rating": 2.4,
+      "stock": 332,
+      "tags": [
+        "sale"
+      ]
+    },
+    {
+      "_id": {
+        "$oid": "6afc7964601b51dbcda72c2b"
+      },
+      "name": "Ultra Bottle 74",
+      "category": "Home",
+      "price": 839.39,
+      "rating": 3.5,
+      "stock": 122,
+      "tags": [
+        "imported"
+      ]
+    },
+    {
+      "_id": {
+        "$oid": "6afc7964601b51dbcda72c2c"
+      },
+      "name": "Smart Chair 75",
+      "category": "Home",
+      "price": 465.57,
+      "rating": 2.0,
+      "stock": 188,
+      "tags": [
+        "new"
+      ]
+    },
+    {
+      "_id": {
+        "$oid": "6afc7964601b51dbcda72c2d"
+      },
+      "name": "Classic Speaker 76",
+      "category": "Books",
+      "price": 579.11,
+      "rating": 4.7,
+      "stock": 294,
+      "tags": [
+        "gift",
+        "eco-friendly",
+        "limited"
+      ]
+    },
+    {
+      "_id": {
+        "$oid": "6afc7964601b51dbcda72c2e"
+      },
+      "name": "Pro Phone 77",
+      "category": "Home",
+      "price": 102.8,
+      "rating": 4.1,
+      "stock": 435,
+      "tags": [
+        "new",
+        "gift",
+        "premium"
+      ]
+    },
+    {
+      "_id": {
+        "$oid": "6afc7964601b51dbcda72c2f"
+      },
+      "name": "Ultra Novel 78",
+      "category": "Beauty",
+      "price": 661.86,
+      "rating": 1.3,
+      "stock": 331,
+      "tags": [
+        "sale",
+        "gift"
+      ]
+    },
+    {
+      "_id": {
+        "$oid": "6afc7964601b51dbcda72c30"
+      },
+      "name": "Max Cream 79",
+      "category": "Grocery",
+      "price": 106.43,
+      "rating": 4.8,
+      "stock": 325,
+      "tags": [
+        "bestseller",
+        "eco-friendly"
+      ]
+    },
+    {
+      "_id": {
+        "$oid": "6afc7964601b51dbcda72c31"
+      },
+      "name": "Classic Kettle 80",
+      "category": "Sports",
+      "price": 616.3,
+      "rating": 4.7,
+      "stock": 396,
+      "tags": [
+        "imported",
+        "eco-friendly"
+      ]
+    },
+    {
+      "_id": {
+        "$oid": "6afc7964601b51dbcda72c32"
+      },
+      "name": "Prime Speaker 81",
+      "category": "Toys",
+      "price": 851.86,
+      "rating": 4.3,
+      "stock": 44,
+      "tags": [
+        "imported",
+        "new"
+      ]
+    },
+    {
+      "_id": {
+        "$oid": "6afc7964601b51dbcda72c33"
+      },
+      "name": "Super Chair 82",
+      "category": "Beauty",
+      "price": 337.06,
+      "rating": 3.0,
+      "stock": 166,
+      "tags": [
+        "imported"
+      ]
+    },
+    {
+      "_id": {
+        "$oid": "6afc7964601b51dbcda72c34"
+      },
+      "name": "Pro Novel 83",
+      "category": "Sports",
+      "price": 341.0,
+      "rating": 4.5,
+      "stock": 359,
+      "tags": [
+        "sale",
+        "premium"
+      ]
+    },
+    {
+      "_id": {
+        "$oid": "6afc7964601b51dbcda72c35"
+      },
+      "name": "Pro Phone 84",
+      "category": "Home",
+      "price": 720.35,
+      "rating": 3.0,
+      "stock": 388,
+      "tags": [
+        "imported"
+      ]
+    },
+    {
+      "_id": {
+        "$oid": "6afc7964601b51dbcda72c36"
+      },
+      "name": "Super Watch 85",
+      "category": "Electronics",
+      "price": 93.96,
+      "rating": 1.9,
+      "stock": 354,
+      "tags": [
+        "premium"
+      ]
+    },
+    {
+      "_id": {
+        "$oid": "6afc7964601b51dbcda72c37"
+      },
+      "name": "Prime Novel 86",
+      "category": "Grocery",
+      "price": 553.92,
+      "rating": 2.4,
+      "stock": 381,
+      "tags": [
+        "limited",
+        "bestseller",
+        "imported"
+      ]
+    },
+    {
+      "_id": {
+        "$oid": "6afc7964601b51dbcda72c38"
+      },
+      "name": "Super Speaker 87",
+      "category": "Sports",
+      "price": 252.15,
+      "rating": 1.5,
+      "stock": 98,
+      "tags": [
+        "new",
+        "limited"
+      ]
+    },
+    {
+      "_id": {
+        "$oid": "6afc7964601b51dbcda72c39"
+      },
+      "name": "Daily Ball 88",
+      "category": "Clothing",
+      "price": 192.35,
+      "rating": 4.0,
+      "stock": 141,
+      "tags": [
+        "premium",
+        "sale",
+        "new"
+      ]
+    },
+    {
+      "_id": {
+        "$oid": "6afc7964601b51dbcda72c3a"
+      },
+      "name": "Eco Bottle 89",
+      "category": "Toys",
+      "price": 180.26,
+      "rating": 1.1,
+      "stock": 273,
+      "tags": [
+        "premium"
+      ]
+    },
+    {
+      "_id": {
+        "$oid": "6afc7964601b51dbcda72c3b"
+      },
+      "name": "Ultra Lamp 90",
+      "category": "Sports",
+      "price": 697.72,
+      "rating": 1.5,
+      "stock": 444,
+      "tags": [
+        "new",
+        "gift"
+      ]
+    },
+    {
+      "_id": {
+        "$oid": "6afc7964601b51dbcda72c3c"
+      },
+      "name": "Ultra Chair 91",
+      "category": "Sports",
+      "price": 469.93,
+      "rating": 2.8,
+      "stock": 94,
+      "tags": [
+        "premium"
+      ]
+    },
+    {
+      "_id": {
+        "$oid": "6afc7964601b51dbcda72c3d"
+      },
+      "name": "Super Phone 92",
+      "category": "Books",
+      "price": 401.31,
+      "rating": 1.3,
+      "stock": 322,
+      "tags": [
+        "sale",
+        "new",
+        "gift"
+      ]
+    },
+    {
+      "_id": {
+        "$oid": "6afc7964601b51dbcda72c3e"
+      },
+      "name": "Prime Speaker 93",
+      "category": "Books",
+      "price": 993.92,
+      "rating": 1.5,
+      "stock": 391,
+      "tags": [
+        "eco-friendly",
+        "gift"
+      ]
+    },
+    {
+      "_id": {
+        "$oid": "6afc7964601b51dbcda72c3f"
+      },
+      "name": "Daily Shoe 94",
+      "category": "Grocery",
+      "price": 908.6,
+      "rating": 2.2,
+      "stock": 301,
+      "tags": [
+        "premium",
+        "imported"
+      ]
+    },
+    {
+      "_id": {
+        "$oid": "6afc7964601b51dbcda72c40"
+      },
+      "name": "Prime Lamp 95",
+      "category": "Books",
+      "price": 947.64,
+      "rating": 1.8,
+      "stock": 108,
+      "tags": [
+        "new",
+        "imported"
+      ]
+    },
+    {
+      "_id": {
+        "$oid": "6afc7964601b51dbcda72c41"
+      },
+      "name": "Pro Shirt 96",
+      "category": "Books",
+      "price": 157.38,
+      "rating": 2.6,
+      "stock": 352,
+      "tags": [
+        "imported",
+        "bestseller",
+        "sale"
+      ]
+    },
+    {
+      "_id": {
+        "$oid": "6afc7964601b51dbcda72c42"
+      },
+      "name": "Pro Speaker 97",
+      "category": "Sports",
+      "price": 703.28,
+      "rating": 2.8,
+      "stock": 351,
+      "tags": [
+        "premium"
+      ]
+    },
+    {
+      "_id": {
+        "$oid": "6afc7964601b51dbcda72c43"
+      },
+      "name": "Prime Camera 98",
+      "category": "Home",
+      "price": 425.71,
+      "rating": 3.2,
+      "stock": 331,
+      "tags": [
+        "premium"
+      ]
+    },
+    {
+      "_id": {
+        "$oid": "6afc7964601b51dbcda72c44"
+      },
+      "name": "Classic Phone 99",
+      "category": "Electronics",
+      "price": 166.76,
+      "rating": 2.2,
+      "stock": 383,
+      "tags": [
+        "premium",
+        "eco-friendly",
+        "sale"
+      ]
+    }
+  ]
+}

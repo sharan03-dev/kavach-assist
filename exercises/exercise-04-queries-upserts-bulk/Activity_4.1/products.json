@@ -1,0 +1,149 @@
+[
+  {
+    "_id": {
+      "$oid": "6afc7971189057c2ae3f6a55"
+    },
+    "name": "Wireless Mouse",
+    "price": 24.99,
+    "stock": 120,
+    "tags": [
+      "electronics",
+      "wireless"
+    ]
+  },
+  {
+    "_id": {
+      "$oid": "6afc7971189057c2ae3f6a56"
+    },
+    "name": "Bluetooth Headphones",
+    "price": 149.0,
+    "stock": 35,
+    "tags": [
+      "electronics",
+      "wireless",
+      "premium"
+    ]
+  },
+  {
+    "_id": {
+      "$oid": "6afc7971189057c2ae3f6a57"
+    },
+    "name": "USB-C Cable",
+    "price": 9.99,
+    "stock": 0,
+    "tags": [
+      "electronics",
+      "accessories"
+    ]
+  },
+  {
+    "_id": {
+      "$oid": "6afc7971189057c2ae3f6a58"
+    },
+    "name": "Mechanical Keyboard",
+    "price": 89.5,
+    "stock": 18,
+    "tags": [
+      "electronics",
+      "premium"
+    ]
+  },
+  {
+    "_id": {
+      "$oid": "6afc7971189057c2ae3f6a59"
+    },
+    "name": "Laptop Stand",
+    "price": 35.0,
+    "stock": 0,
+    "tags": [
+      "office"
+    ]
+  },
+  {
+    "_id": {
+      "$oid": "6afc7971189057c2ae3f6a5a"
+    },
+    "name": "Noise-Cancel Earbuds",
+    "price": 199.0,
+    "stock": 0,
+    "tags": [
+      "electronics",
+      "wireless",
+      "premium"
+    ]
+  },
+  {
+    "_id": {
+      "$oid": "6afc7971189057c2ae3f6a5b"
+    },
+    "name": "Desk Lamp",
+    "price": 42.0,
+    "stock": 60,
+    "tags": [
+      "office",
+      "lighting"
+    ]
+  },
+  {
+    "_id": {
+      "$oid": "6afc7971189057c2ae3f6a5c"
+    },
+    "name": "Leather Notebook",
+    "price": 22.0,
+    "stock": 200,
+    "tags": [
+      "stationery",
+      "premium"
+    ]
+  },
+  {
+    "_id": {
+      "$oid": "6afc7971189057c2ae3f6a5d"
+    },
+    "name": "Smart Watch",
+    "price": 249.0,
+    "stock": 12,
+    "tags": [
+      "electronics",
+      "wireless",
+      "premium",
+      "wearable"
+    ]
+  },
+  {
+    "_id": {
+      "$oid": "6afc7971189057c2ae3f6a5e"
+    },
+    "name": "Webcam HD",
+    "price": 49.99,
+    "stock": 44,
+    "tags": [
+      "electronics",
+      "video"
+    ]
+  },
+  {
+    "_id": {
+      "$oid": "6afc7971189057c2ae3f6a5f"
+    },
+    "name": "Ergonomic Chair",
+    "price": 320.0,
+    "stock": 7,
+    "tags": [
+      "office",
+      "furniture"
+    ]
+  },
+  {
+    "_id": {
+      "$oid": "6afc7971189057c2ae3f6a60"
+    },
+    "name": "Wireless Charger",
+    "price": 29.0,
+    "stock": 0,
+    "tags": [
+      "electronics",
+      "wireless"
+    ]
+  }
+]

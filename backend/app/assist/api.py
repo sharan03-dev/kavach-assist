@@ -203,7 +203,7 @@ def status(user: dict = Depends(auth.current_user)):
     e = ai.embedder()
     return J({"llm": b, "ollama": llm.ollama_status() if S.OLLAMA_URL else None, "embedder": {"provider": e.name, "model": getattr(e, "model", e.name), "dims": e.dims},
               "knowledge": knowledge.stats(), "bot": engine.bot_state(), "board": threats.board(None), "platforms": S.PLATFORMS, "statuses": S.STATUSES,
-              "suggestions": engine.SUGGESTIONS, "rate_limit_per_min": S.CHAT_RATE_PER_MIN,
+              "chat_mode": S.CHAT_MODE, "suggestions": engine.SUGGESTIONS, "rate_limit_per_min": S.CHAT_RATE_PER_MIN,
               "open_findings": store.adb().scan_findings.count_documents({"status": {"$in": ["open", "failed"]}})})
 
 

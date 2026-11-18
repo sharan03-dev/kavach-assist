@@ -1,0 +1,62 @@
+[
+  {
+    "_id": {
+      "$oid": "6afc7973eb2c3078d4c36934"
+    },
+    "sku": "KB-100",
+    "created_at": {
+      "$date": "2026-11-17T15:57:39.268Z"
+    },
+    "name": "Mechanical Keyboard",
+    "price": 89.5,
+    "stock": 20
+  },
+  {
+    "_id": {
+      "$oid": "6afc7973eb2c3078d4c36935"
+    },
+    "sku": "MS-200",
+    "created_at": {
+      "$date": "2026-11-17T15:57:39.268Z"
+    },
+    "name": "Wireless Mouse",
+    "price": 24.99,
+    "stock": 75
+  },
+  {
+    "_id": {
+      "$oid": "6afc7973eb2c3078d4c36936"
+    },
+    "sku": "HB-300",
+    "created_at": {
+      "$date": "2026-11-17T15:57:39.268Z"
+    },
+    "name": "USB-C Hub",
+    "price": 45.0,
+    "stock": 30
+  },
+  {
+    "_id": {
+      "$oid": "6afc7973eb2c3078d4c36937"
+    },
+    "sku": "WC-400",
+    "created_at": {
+      "$date": "2026-11-17T15:57:39.268Z"
+    },
+    "name": "Webcam HD",
+    "price": 49.99,
+    "stock": 12
+  },
+  {
+    "_id": {
+      "$oid": "6afc7973eb2c3078d4c36938"
+    },
+    "sku": "HS-500",
+    "created_at": {
+      "$date": "2026-11-17T15:57:39.268Z"
+    },
+    "name": "Headset",
+    "price": 54.0,
+    "stock": 10
+  }
+]

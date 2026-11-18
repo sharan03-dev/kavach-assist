@@ -1,0 +1,71 @@
+[
+  {
+    "name": "category_1_price_1",
+    "key": {
+      "category": 1,
+      "price": 1
+    },
+    "ops": 120,
+    "since": {
+      "$date": "2026-11-17T15:57:24.665Z"
+    },
+    "workload_ops": 120
+  },
+  {
+    "name": "price_1",
+    "key": {
+      "price": 1
+    },
+    "ops": 60,
+    "since": {
+      "$date": "2026-11-17T15:57:24.767Z"
+    },
+    "workload_ops": 60
+  },
+  {
+    "name": "tags_1",
+    "key": {
+      "tags": 1
+    },
+    "ops": 35,
+    "since": {
+      "$date": "2026-11-17T15:57:24.874Z"
+    },
+    "workload_ops": 35
+  },
+  {
+    "name": "name_text",
+    "key": {
+      "_fts": "text",
+      "_ftsx": 1
+    },
+    "ops": 20,
+    "since": {
+      "$date": "2026-11-17T15:57:25.066Z"
+    },
+    "workload_ops": 20
+  },
+  {
+    "name": "rating_-1_stock_1",
+    "key": {
+      "rating": -1,
+      "stock": 1
+    },
+    "ops": 10,
+    "since": {
+      "$date": "2026-11-17T15:57:25.367Z"
+    },
+    "workload_ops": 10
+  },
+  {
+    "name": "_id_",
+    "key": {
+      "_id": 1
+    },
+    "ops": 0,
+    "since": {
+      "$date": "2026-11-17T15:57:24.354Z"
+    },
+    "workload_ops": 0
+  }
+]

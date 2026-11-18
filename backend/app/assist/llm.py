@@ -13,6 +13,7 @@ LLM_BACKEND=auto tries ollama -> openai -> anthropic and falls back to builtin. 
 from __future__ import annotations
 
 import json
+import pathlib
 import threading
 import time
 
@@ -96,6 +97,51 @@ def ollama_status(force: bool = False) -> dict:
         return st
 
 
+# ---------------------------------------------------------------------------- the "brain": base model + built-in Kavach knowledge
+BRAIN_RULES = ("You are Kavach Assist, an expert AI assistant for cyber security and for the Kavach cyber threat intelligence platform "
+               "(a MongoDB course project: FastAPI + MongoDB, labs 7 to 18). Answer EVERY question yourself, directly, from your own knowledge: "
+               "threats on any platform (Linux, Windows, macOS, Android, iOS, cloud, network), the four threat states "
+               "(Active = exploited now, Evolving = changing or spreading, Anticipated = likely soon, Resolved = fixed), precise numbered mitigation "
+               "steps with exact commands, questions about the labs, NoSQL and MongoDB, and any general question. Never invent CVE ids, dates or "
+               "version numbers: if you are not sure, say so. Be concise: for mitigation give at most 5 numbered steps, one short line each, with the exact command in a code block, and finish every step you start. Short markdown, no preamble.")
+
+
+def brain_text() -> str:
+    """BRAIN_RULES + a digest of the Kavach knowledge files (what the model 'knows' about the project)."""
+    kb = pathlib.Path(__file__).parent / "knowledge_base"
+    parts = [BRAIN_RULES, "KAVACH KNOWLEDGE:"]
+    try:
+        for name, limit in (("kavach_about.md", 1300), ("labs_guide.md", 1300)):
+            parts.append((kb / name).read_text(encoding="utf-8")[:limit])
+        for f in sorted(kb.glob("playbook_*.md")):
+            parts.append(f.read_text(encoding="utf-8")[:380])
+    except OSError:
+        pass
+    return "\n\n".join(parts)
+
+
+def _build_brain(base: str) -> None:
+    try:
+        r = _http.post(f"{S.OLLAMA_URL}/api/create", json={"model": S.BRAIN_MODEL, "from": base, "system": brain_text(), "stream": False,
+                                                           "parameters": {"temperature": 0.2, "num_ctx": 4096}}, timeout=httpx.Timeout(10.0, read=600.0))
+        r.raise_for_status()
+        _state["brain"], _state["brain_error"] = base, None
+    except Exception as exc:                           # noqa: BLE001
+        _state["brain_error"] = f"{type(exc).__name__}: {str(exc)[:160]}"
+    finally:
+        _state["brain_building"] = False
+
+
+def ensure_brain(base: str) -> bool:
+    """True when the custom model is ready on top of `base`; builds it once in the background otherwise (until then the base model gets the same text as system prompt)."""
+    if _state.get("brain") == base:
+        return True
+    if not _state.get("brain_building") and time.time() - _state.get("brain_at", 0) > 120:
+        _state["brain_building"], _state["brain_at"] = True, time.time()
+        threading.Thread(target=_build_brain, args=(base,), daemon=True).start()
+    return False
+
+
 def report_failure(error: str) -> None:
     """Called when a generation failed. Out of memory with the 3B model -> switch to the 1B model (when the choice was automatic)."""
     _state["last_error"], _state["last_error_at"] = error[:200], time.time()
@@ -136,15 +182,22 @@ def _est_tokens(text: str) -> int:
     return max(1, round(len(text) / 4))
 
 
-def stream(system: str, messages: list[dict], usage: dict, max_tokens: int | None = None):
+def stream(system: str, messages: list[dict], usage: dict, max_tokens: int | None = None, direct: bool = False):
     """Yield the answer piece by piece. `usage` is filled with provider, model, prompt_tokens, completion_tokens.
     Raises on failure BEFORE the first piece, so the caller can fall back to the built-in composer."""
     b = backend()
     usage.update(provider=b["provider"], model=b["model"])
     max_tokens = max_tokens or S.LLM_MAX_TOKENS
     if b["provider"] == "ollama":
-        payload = {"model": b["model"], "stream": True, "keep_alive": "30m",
-                   "messages": [{"role": "system", "content": system}] + messages,
+        model, sys_msgs = b["model"], [{"role": "system", "content": system}]
+        if direct:                                     # straight to the Kavach model: its knowledge is built in, nothing is fetched from MongoDB
+            if ensure_brain(b["model"]):
+                model, sys_msgs = S.BRAIN_MODEL, []
+                usage.update(model=f"{S.BRAIN_MODEL} ({b['model']})")
+            else:
+                sys_msgs = [{"role": "system", "content": brain_text()}]
+        payload = {"model": model, "stream": True, "keep_alive": "30m",
+                   "messages": sys_msgs + messages,
                    "options": {"temperature": 0.2, "num_predict": max_tokens, "num_ctx": 4096}}
         with _http.stream("POST", f"{S.OLLAMA_URL}/api/chat", json=payload,
                           timeout=httpx.Timeout(10.0, read=float(S.LLM_FIRST_TOKEN_S))) as r:

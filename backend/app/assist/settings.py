@@ -35,8 +35,10 @@ OPENAI_API_KEY = os.getenv("OPENAI_API_KEY", "")
 OPENAI_MODEL = os.getenv("OPENAI_MODEL", "gpt-4o-mini")
 ANTHROPIC_API_KEY = os.getenv("ANTHROPIC_API_KEY", "")
 ANTHROPIC_MODEL = os.getenv("LLM_MODEL", "claude-haiku-4-5")
-LLM_MAX_TOKENS = _int("LLM_MAX_TOKENS", 420)
-LLM_FIRST_TOKEN_S = _int("LLM_FIRST_TOKEN_S", 120)
+CHAT_MODE = os.getenv("CHAT_MODE", "direct").lower()          # direct = every question goes straight to Ollama (no MongoDB lookup); hybrid = answers grounded in MongoDB data
+BRAIN_MODEL = os.getenv("BRAIN_MODEL", "kavach-assist")      # the Ollama model built from the base model + the Kavach knowledge (Modelfile)
+LLM_MAX_TOKENS = _int("LLM_MAX_TOKENS", 700)
+LLM_FIRST_TOKEN_S = _int("LLM_FIRST_TOKEN_S", 240)
 
 # ---- hardening (A.7)
 CHAT_RATE_PER_MIN = _int("CHAT_RATE_PER_MIN", 20)
