@@ -7,6 +7,34 @@ This repository holds two things that build on each other:
 1. **Final assessment: Kavach Assist** - an LLM/SLM-backed chat application on MongoDB (this section).
 2. **Exercises 7 to 18** - the Kavach cyber threat intelligence platform and its labs (the rest of this file).
 
+## README of every lab (1 to 18)
+
+Each lab or exercise has its own folder with its own README (what it proves, the files, how to run it).
+
+| Lab | Topic | README |
+|---|---|---|
+| 1 | NoSQL database families | [exercises/exercise-01-nosql-families](exercises/exercise-01-nosql-families/README.md) |
+| 2 | Environment setup and CRUD with PyMongo | [exercises/exercise-02-setup-and-crud](exercises/exercise-02-setup-and-crud/README.md) |
+| 3 | Schema design: embedding vs referencing | [exercises/exercise-03-schema-design](exercises/exercise-03-schema-design/README.md) |
+| 4 | Query operators, upserts and bulk writes | [exercises/exercise-04-queries-upserts-bulk](exercises/exercise-04-queries-upserts-bulk/README.md) |
+| 5 | Aggregation framework and $lookup | [exercises/exercise-05-aggregation-lookup](exercises/exercise-05-aggregation-lookup/README.md) |
+| 6 | Indexing and query performance | [exercises/exercise-06-indexing](exercises/exercise-06-indexing/README.md) |
+| 7.1 | Production schema analysis | [labs/lab7_1](labs/lab7_1/README.md) |
+| 7.2 | Working set and WiredTiger cache | [labs/lab7_2](labs/lab7_2/README.md) |
+| 8 | Replica set and high availability | [labs/lab8](labs/lab8/README.md) |
+| 9 | Write concern and network partitions | [labs/lab9](labs/lab9/README.md) |
+| 10 | Multi-document ACID transactions | [labs/lab10](labs/lab10/README.md) |
+| 11 | Sharding | [labs/lab11](labs/lab11/README.md) |
+| 12 | Security | [labs/lab12](labs/lab12/README.md) |
+| 13 | Containers and cloud | [labs/lab13](labs/lab13/README.md) |
+| 14 | Operations, monitoring and backup | [labs/lab14](labs/lab14/README.md) |
+| 15 | Multi-tenant SaaS (TaskTracker) | [labs/lab15](labs/lab15/README.md) |
+| 16 | Cassandra and Neo4j | [labs/lab16](labs/lab16/README.md) |
+| 17 | Vector search and RAG | [labs/lab17](labs/lab17/README.md) |
+| 18 | Capstone comparison | [labs/lab18](labs/lab18/README.md) |
+
+The labs index is also in [labs/README.md](labs/README.md) and [exercises/README.md](exercises/README.md).
+
 ---
 
 ## Final assessment: Kavach Assist
